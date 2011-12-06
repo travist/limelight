@@ -43,6 +43,8 @@ class LimelightServer extends restPHP_Server {
         }
       }
     }
+
+    return $this;
   }
 
   /**
@@ -80,6 +82,8 @@ class LimelightServer extends restPHP_Server {
       $signature = base64_encode(hash_hmac('sha256', $str_to_sign, $this->config['secret'], true));
       $request->url->setQueryVariable('signature', $signature);
     }
+
+    return $this;
   }
 
   /**
