@@ -22,6 +22,20 @@ class LimelightMediaTest extends PHPUnit_Framework_TestCase {
     }
   }
 
+  // Test viewing unpublished media.
+  public function testUnpublishedMediaList() {
+
+    // Create a new media object.
+    $media = new LimeLightMedia();
+    $media_list = $media->getList(array('published' => FALSE));
+    $this->assertTrue(!!$media_list, 'The media list is defined.');
+    $this->assertEquals(25, count($media_list));
+    foreach ($media_list as $item) {
+      $this->assertTrue(isset($item->id) && $item->id, 'ID is defined');
+      $this->assertTrue(isset($item->title) && $item->title, 'Title is defined.');
+    }
+  }
+
   // Test loading a single media item.
   public function testMediaLoad() {
 

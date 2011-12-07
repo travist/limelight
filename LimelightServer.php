@@ -54,18 +54,18 @@ class LimelightServer extends restPHP_Server {
 
     // Only authenticate under certain conditions.
     if ($this->config['authenticate'] && $this->config['access_key'] && $this->config['secret']) {
-      $parsed_url = parse_url($request->url->getURL());
-      $str_to_sign = strtolower($request->method . '|' . $parsed_url['host'] . '|' . $parsed_url['path']) . '|';
+      $parsed_url = parse_url($request->getUrl()->getUrl());
+      $str_to_sign = strtolower($request->getMethod() . '|' . $parsed_url['host'] . '|' . $parsed_url['path']) . '|';
 
       // Get the query variables, and make sure the required ones are set for authentication.
-      $params = $request->url->getQueryVariables();
+      $params = $request->getUrl()->getQueryVariables();
       if (!isset($params['access_key'])) {
         $params['access_key'] = $this->config['access_key'];
-        $request->url->setQueryVariable('access_key', $params['access_key']);
+        $request->getUrl()->setQueryVariable('access_key', $params['access_key']);
       }
       if (!isset($params['expires'])) {
         $params['expires'] = time() + 300;
-        $request->url->setQueryVariable('expires', $params['expires']);
+        $request->getUrl()->setQueryVariable('expires', $params['expires']);
       }
 
       // Sort them in alphabetical order.
@@ -80,7 +80,7 @@ class LimelightServer extends restPHP_Server {
       // Remove the last & from the path.
       $str_to_sign = rtrim($str_to_sign,'&');
       $signature = base64_encode(hash_hmac('sha256', $str_to_sign, $this->config['secret'], true));
-      $request->url->setQueryVariable('signature', $signature);
+      $request->getUrl()->setQueryVariable('signature', $signature);
     }
 
     return $this;
