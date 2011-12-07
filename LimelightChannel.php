@@ -1,10 +1,10 @@
 <?php
 
-// Require the LimelightEntity class.
+// Require the LimelightResource class.
 require_once 'LimelightMedia.php';
-require_once 'LimelightEntity.php';
+require_once 'LimelightResource.php';
 
-class LimeLightChannel extends LimelightEntity {
+class LimeLightChannel extends LimelightResource {
 
   /** The description of the channel. */
   public $description = '';

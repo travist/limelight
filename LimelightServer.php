@@ -15,13 +15,13 @@ class LimelightServer extends restPHP_Server {
   function __construct() {
 
     // Call the constructor.
-    parent::_construct();
+    parent::__construct();
 
     // Override the config based on the Limelight configuration.
     $this->config = array_merge($this->config, LimelightConfig::getConfig());
 
     // Add the organization ID to the base_url.
-    $this->base_url .= ('/' . $this->config['organization_id']);
+    $this->config['base_url'] .= ('/' . $this->config['organization_id']);
   }
 
   /**

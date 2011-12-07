@@ -32,7 +32,7 @@ class LimelightConfig {
    * elsewhere using example code above.
    */
   public static $config = array(
-    'base_url' => 'http://api.videoplatform.limelight.com/rest/organizations/',
+    'base_url' => 'http://api.videoplatform.limelight.com/rest/organizations',
     'organization_id' => '75a248700b00470b86dab6b47a9cd406',
     'access_key' => '',
     'secret' => '',

@@ -1,11 +1,11 @@
 <?php
 
-// Require the LimelightEntity class.
-require_once 'lib/RESTPHP/RESTEntity.php';
+require_once 'lib/restPHP/Resource.php';
 require_once 'LimelightConfig.php';
 require_once 'LimelightServer.php';
 
-class LimelightEntity extends RESTEntity {
+class LimelightResource extends restPHP_Resource {
+
 
   /** The title of this entity. */
   public $title = '';

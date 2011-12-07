@@ -1,10 +1,10 @@
 <?php
 
-// Require the LimelightEntity class.
-require_once 'LimelightEntity.php';
+// Require the LimelightResource class.
+require_once 'LimelightResource.php';
 require_once 'LimelightChannel.php';
 
-class LimeLightMedia extends LimelightEntity {
+class LimeLightMedia extends LimelightResource {
 
   /** The media file. */
   public $media_file = '';
@@ -79,8 +79,8 @@ class LimeLightMedia extends LimelightEntity {
   protected function parseEntities($entities, $className) {
 
     // If media_list exists, use it instead.
-    if (isset($entities['media_list'])) {
-      $entities = $entities['media_list'];
+    if (isset($entities->media_list)) {
+      $entities = $entities->media_list;
     }
 
     // Parse the entities.

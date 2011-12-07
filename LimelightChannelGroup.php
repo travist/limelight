@@ -1,10 +1,10 @@
 <?php
 
-// Require the LimelightEntity class.
-require_once 'LimelightEntity.php';
+// Require the LimelightResource class.
+require_once 'LimelightResource.php';
 require_once 'LimelightChannel.php';
 
-class LimeLightChannelGroup extends LimelightEntity {
+class LimeLightChannelGroup extends LimelightResource {
 
   /** The date the channel was last updated. */
   public $update_date = 0;
