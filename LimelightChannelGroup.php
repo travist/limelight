@@ -13,35 +13,35 @@ class LimeLightChannelGroup extends LimelightResource {
   public $create_date = 0;
 
   /**
-   * Returns the type for this entity.
+   * Returns the endpoint for this resource.
    */
   public function getType() {
     return 'channelgroups';
   }
 
   /**
-   * Returns a list of channel groups.
+   * Returns an index of channel groups.
    *
    * @param array $filter
    * @return type
    */
-  public function getList($filter = array()) {
+  public function index($filter = array()) {
 
     // You can only get ALL channel groups.
     $filter['published'] = FALSE;
-    return parent::getList($filter);
+    return parent::index($filter);
   }
 
   /**
    * Returns all the channels within this channel group.
    */
   public function getChannels($filter = array()) {
-
-    // Return a typelist of channels.
-    return $this->getTypeList('channels', $filter, array(
+    $filter = $this->getFilter($filter, array(
       'page_id' => 0,
       'page_size' => 25
-    ), 'LimelightChannel');
+    ));
+    $endpoint = $this->type . '/' . $this->id . '/channels';
+    return $this->getIndex($endpoint, $filter, 'LimelightChannel');
   }
 
   /**

@@ -7,7 +7,7 @@ require_once 'LimelightServer.php';
 class LimelightResource extends restPHP_Resource {
 
 
-  /** The title of this entity. */
+  /** The title of this resource. */
   public $title = '';
 
   /**
@@ -18,9 +18,9 @@ class LimelightResource extends restPHP_Resource {
   }
 
   /**
-   * Returns the default filter for creating the list of entities.
+   * Returns the default filter for creating the list of resources.
    */
-  protected function getDefaultListFilter() {
+  protected function getIndexDefaults() {
     return array(
       'page_id' => 0,
       'page_size' => 25,
@@ -30,25 +30,23 @@ class LimelightResource extends restPHP_Resource {
   }
 
   /**
-   * Returns a list of self() objects.
+   * Returns the list of resources.
    */
-  public function getList($filter = array(), $param = '') {
-
-    // Make sure we authenticate the "all" list.
+  protected function getIndex($endpoint, $filter, $className) {
     if (isset($filter['published'])) {
       if (!$filter['published']) {
-        $param = 'all';
+        $endpoint .= '/all';
         $this->server->setConfig('authenticate', TRUE);
       }
       unset($filter['published']);
     }
-    $list = parent::getList($filter, $param);
+    $index = parent::getIndex($endpoint, $filter, $className);
     $this->server->setConfig('authenticate', FALSE);
-    return $list;
+    return $index;
   }
 
   /**
-   * Gets the properties of this entity.
+   * Gets the properties of this resource.
    */
   public function get() {
     if ($this->id && $this->type) {
@@ -78,8 +76,8 @@ class LimelightResource extends restPHP_Resource {
       return false;
     }
 
-    if ($entity = parent::getObject()) {
-      return array_merge($entity, array(
+    if ($resource = parent::getObject()) {
+      return array_merge($resource, array(
         'title' => $this->title
       ));
     }

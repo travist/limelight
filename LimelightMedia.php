@@ -57,34 +57,32 @@ class LimeLightMedia extends LimelightResource {
   /** The date the media was created. */
   public $create_date = 0;
 
-  /** The API for this entity. */
-
   function __construct($params = null) {
     parent::__construct(&$params);
     $this->id = $this->id ? $this->id : $params['media_id'];
   }
 
   /**
-   * Returns the type for this entity.
+   * Returns the endpoint for this resource.
    */
   public function getType() {
     return 'media';
   }
 
   /**
-   * Parse function to parse out entities returned by list functions.
+   * Parse function to parse out resources returned by list functions.
    *
-   * @param type $entities
+   * @param type $resources
    */
-  protected function parseEntities($entities, $className) {
+  protected function parse($resources, $className) {
 
     // If media_list exists, use it instead.
-    if (isset($entities->media_list)) {
-      $entities = $entities->media_list;
+    if (isset($resources->media_list)) {
+      $resources = $resources->media_list;
     }
 
-    // Parse the entities.
-    return parent::parseEntities($entities, $className);
+    // Parse the resources.
+    return parent::parse($resources, $className);
   }
 
   /**
@@ -94,12 +92,14 @@ class LimeLightMedia extends LimelightResource {
 
     // Return a typelist of channels.
     $this->server->setConfig('authenticate', TRUE);
-    $list = $this->getTypeList('channels', $filter, array(
+    $filter = $this->getFilter($filter, array(
       'page_id' => 0,
       'page_size' => 25,
       'sort_by' => 'update_date',
       'sort_order' => 'asc'
-    ), 'LimelightChannel');
+    ));
+    $endpoint = $this->type . '/' . $this->id . '/channels';
+    $list = $this->getIndex($endpoint, $filter, 'LimelightChannel');
     $this->server->setConfig('authenticate', FALSE);
     return $list;
   }
@@ -133,8 +133,8 @@ class LimeLightMedia extends LimelightResource {
    * @return type
    */
   public function getObject() {
-    if ($entity = parent::getObject()) {
-      return array_merge($entity, array(
+    if ($resource = parent::getObject()) {
+      return array_merge($resource, array(
         'media_file' => $this->media_file,
         'description' => $this->description,
         'category' => $this->category,

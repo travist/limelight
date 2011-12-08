@@ -43,7 +43,7 @@ class LimeLightChannel extends LimelightResource {
   public $create_date = 0;
 
   /**
-   * Returns the type for this entity.
+   * Returns the endpoint for this resource.
    */
   public function getType() {
     return 'channels';
@@ -54,11 +54,12 @@ class LimeLightChannel extends LimelightResource {
    */
   public function getMedia($filter = array()) {
 
-    // Return a typelist of media.
-    return $this->getTypeList('media', $filter, array(
+    $filter = $this->getFilter($filter, array(
       'page_id' => 0,
       'page_size' => 25
-    ), 'LimelightMedia');
+    ));
+    $endpoint = $this->type . '/' . $this->id . '/media';
+    return $this->getIndex($endpoint, $filter, 'LimelightMedia');
   }
 
   /**
@@ -66,8 +67,8 @@ class LimeLightChannel extends LimelightResource {
    * @return type
    */
   public function getObject() {
-    if ($entity = parent::getObject()) {
-      return array_merge($entity, array(
+    if ($resource = parent::getObject()) {
+      return array_merge($resource, array(
         'description' => $this->description,
         'state' => $this->state,
         'email_enabled' => $this->email_enabled,

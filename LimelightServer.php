@@ -89,15 +89,15 @@ class LimelightServer extends restPHP_Server {
   /**
    * Performs a save call.
    */
-  public function save($entity, $endpoint) {
+  public function save($resource, $endpoint) {
     $this->config['authenticate'] = TRUE;
-    $ret = parent::save($entity, $endpoint);
+    $ret = parent::save($resource, $endpoint);
     $this->config['authenticate'] = FALSE;
     return $ret;
   }
 
   /**
-   * Deletes an entity.
+   * Deletes an resource.
    */
   public function delete($endpoint) {
     $this->config['authenticate'] = TRUE;

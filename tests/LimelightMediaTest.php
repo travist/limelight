@@ -9,7 +9,7 @@ class LimelightMediaTest extends PHPUnit_Framework_TestCase {
     $media = new LimelightMedia();
 
     // Get a list of all published media.
-    $media_list = $media->getList();
+    $media_list = $media->index();
 
     // Assert that it returned 25 items.
     $this->assertTrue(!!$media_list, 'The media list is defined.');
@@ -27,7 +27,7 @@ class LimelightMediaTest extends PHPUnit_Framework_TestCase {
 
     // Create a new media object.
     $media = new LimeLightMedia();
-    $media_list = $media->getList(array('published' => FALSE));
+    $media_list = $media->index(array('published' => FALSE));
     $this->assertTrue(!!$media_list, 'The media list is defined.');
     $this->assertEquals(25, count($media_list));
     foreach ($media_list as $item) {
@@ -43,7 +43,7 @@ class LimelightMediaTest extends PHPUnit_Framework_TestCase {
     $media = new LimelightMedia();
 
     // Get a list of all published media.
-    $media_list = $media->getList();
+    $media_list = $media->index();
 
     // Get the ID of the first item.
     $id = $media_list[0]->id;
