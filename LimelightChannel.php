@@ -53,7 +53,6 @@ class LimeLightChannel extends LimelightResource {
    * Returns all the media associated with this channel.
    */
   public function getMedia($filter = array()) {
-
     $filter = $this->getFilter($filter, array(
       'page_id' => 0,
       'page_size' => 25

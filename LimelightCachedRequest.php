@@ -17,18 +17,23 @@ class LimelightCachedRequest extends HTTP_FileCachedRequest {
     // Get the query variables from the URL.
     $query = $temp = $this->url->getQueryVariables();
 
-    // Unset the signature and expires since those change per request.
-    unset($temp['signature']);
-    unset($temp['expires']);
+    // Is this a signed request?
+    if (isset($temp['signature'])) {
 
-    // Set the temporary query without the changing params.
-    $this->url->setQueryVariables($temp);
+      // Unset the authentication parameters from teh query.
+      unset($temp['access_key']);
+      unset($temp['signature']);
+      unset($temp['expires']);
 
-    // Get the cache name based on the URL.
-    $cache_name = md5($this->url->getURL());
+      // Set the temporary query without the changing params.
+      $this->url->setQueryVariables($temp);
 
-    // Restore the original query variables.
-    $this->url->setQueryVariables($query);
+      // Get the cache name based on the URL.
+      $cache_name = md5($this->url->getURL());
+
+      // Restore the original query variables.
+      $this->url->setQueryVariables($query);
+    }
 
     // Call the parent.
     parent::set_cache_name($cache_name);

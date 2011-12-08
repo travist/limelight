@@ -26,7 +26,6 @@ class LimeLightChannelGroup extends LimelightResource {
    * @return type
    */
   public function index($filter = array()) {
-
     // You can only get ALL channel groups.
     $filter['published'] = FALSE;
     return parent::index($filter);

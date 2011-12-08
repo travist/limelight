@@ -75,7 +75,6 @@ class LimeLightMedia extends LimelightResource {
    * @param type $resources
    */
   protected function parse($resources, $className) {
-
     // If media_list exists, use it instead.
     if (isset($resources->media_list)) {
       $resources = $resources->media_list;
@@ -89,7 +88,6 @@ class LimeLightMedia extends LimelightResource {
    * Returns all the channels that this media belongs too.
    */
   public function getChannels($filter = array()) {
-
     // Return a typelist of channels.
     $this->server->setConfig('authenticate', TRUE);
     $filter = $this->getFilter($filter, array(
