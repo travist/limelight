@@ -4,7 +4,7 @@
 require_once 'LimelightResource.php';
 require_once 'LimelightChannel.php';
 
-class LimeLightMedia extends LimelightResource {
+class LimelightMedia extends LimelightResource {
 
   /** The media file. */
   public $media_file = '';

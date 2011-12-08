@@ -111,12 +111,14 @@ class restPHP_Resource {
 
   /**
    * A public static accessor to return an index of resources.
+   * Requires PHP 5.3.
    *
    * @param type $filter
    * @return type
    */
   public static function index($filter = array()) {
-    $resource = new get_class(self);
+    $class = get_called_class();
+    $resource = new $class();
     return $resource->__index($filter);
   }
 
