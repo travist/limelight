@@ -37,7 +37,7 @@ class LimelightConfig {
     'access_key' => '',
     'secret' => '',
     'cache_timeout' => 4800,
-    'request_class' => 'HTTP_FileCachedRequest',
+    'request_class' => 'LimelightCachedRequest',
     'authenticate' => FALSE
   );
 

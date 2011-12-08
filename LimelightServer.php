@@ -1,7 +1,7 @@
 <?php
 
 require_once 'lib/restPHP/Server.php';
-require_once 'lib/CachedRequest/HTTP/FileCachedRequest.php';
+require_once 'LimelightCachedRequest.php';
 require_once 'LimelightConfig.php';
 
 /**
