@@ -21,7 +21,8 @@ class restPHP_Resource {
     $params = (array)$params;
 
     // Create the server.
-    $this->createServer();
+    $this->createServer(isset($params['server']) ? $params['server'] : array());
+    unset($params['server']);
 
     // Define an empty type.
     $this->type = $this->getType();
@@ -42,10 +43,10 @@ class restPHP_Resource {
   /**
    * Create the server object.
    */
-  public function createServer() {
+  public function createServer($config = array()) {
 
     // Create the new server class.
-    $this->server = new restPHP_Server();
+    $this->server = new restPHP_Server($config);
   }
 
   /**
@@ -80,11 +81,15 @@ class restPHP_Resource {
    */
   protected function parse($resources, $className) {
 
-    // Now iterate through all the channels.
-    foreach ($resources as &$resource) {
+    // Check to make sure there are resources.
+    if ($resources) {
 
-      // Convert it to a resource object.
-      $resource = new $className($resource);
+      // Now iterate through all the channels.
+      foreach ($resources as &$resource) {
+
+        // Convert it to a resource object.
+        $resource = new $className($resource);
+      }
     }
 
     // Return the resource array.

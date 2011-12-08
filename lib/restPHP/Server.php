@@ -19,7 +19,7 @@ class restPHP_Server {
     // Make sure the defaults are set.
     $this->config = array_merge($config, array(
       'base_url' => '',
-      'type' => 'json',
+      'format' => 'json',
       'request_class' => 'HTTP_Request2'
     ));
   }
@@ -39,7 +39,8 @@ class restPHP_Server {
    */
   protected function getRequest($url, $method) {
     $request_class = $this->config['request_class'];
-    return new $request_class($url, $method);
+    $config = isset($this->config['request']) ? $this->config['request'] : array();
+    return new $request_class($url, $method, $config);
   }
 
   /**
@@ -102,15 +103,15 @@ class restPHP_Server {
    */
   protected function decode($response) {
 
-    // Switch based on the type.
-    switch ($this->config['type']) {
+    // Switch based on the format.
+    switch ($this->config['format']) {
 
       case 'json':
         return json_decode($response);
         break;
 
       default:
-        // TO-DO: IMPLEMENT OTHER TYPES!
+        // TO-DO: IMPLEMENT OTHER FORMATS!
         break;
     }
   }
@@ -118,14 +119,15 @@ class restPHP_Server {
   /**
    * Performs a server call.
    */
-  public function call($endpoint, $method = HTTP_Request2::METHOD_GET, $params = array(), $query = array()) {
+  public function call($endpoint, $method = HTTP_Request2::METHOD_GET, $params = array(), $query = array(), $has_format = TRUE) {
 
     // Normalize the params.
     $params = (array)$params;
     $query = (array)$query;
 
     // Create the URL defined by the endpoint.
-    $url = $this->config['base_url'] . '/' . $endpoint . '.' . $this->config['type'];
+    $format = $has_format ? ('.' . $this->config['format']) : '';
+    $url = $this->config['base_url'] . '/' . $endpoint . $format;
 
     // Create the request object.
     $request = $this->getRequest($url, $method);

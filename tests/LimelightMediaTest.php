@@ -55,7 +55,34 @@ class LimelightMediaTest extends PHPUnit_Framework_TestCase {
 
     // Get a list of all published media.
     $media_list = LimelightMedia::index();
+    $media = $media_list[0];
+
+    // Now get the channels for this media.
+    $channels = $media->getChannels();
+
+    // Now iterate through the channels.
+    foreach ($channels as $item) {
+
+      $this->assertTrue(isset($item->id) && $item->id, "ID is defined");
+      $this->assertTrue(isset($item->title) && $item->title, "Title is defined");
+    }
   }
 
+  // Test adding a tag.
+  public function testAddDeleteTag() {
+
+    // Get a list of all published media.
+    $tag = 'testing_one_two_three';
+    $media_list = LimelightMedia::index();
+    $media = $media_list[0];
+    $media->addTag($tag);
+
+    // Now get the media separately, with server caching turned off...
+    $check = new LimelightMedia(array('id' => $media->id, 'server' => array('request' => array('cache' => FALSE))));
+    $this->assertTrue(in_array($tag, $check->tags), "Tag was set.");
+    $check->deleteTag($tag);
+    $check->get();
+    $this->assertTrue(!in_array($tag, $check->tags), 'Tag was deleted.');
+  }
 }
 ?>

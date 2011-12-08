@@ -13,8 +13,8 @@ class LimelightResource extends restPHP_Resource {
   /**
    * Create the server object.
    */
-  public function createServer() {
-    $this->server = new LimelightServer();
+  public function createServer($config = array()) {
+    $this->server = new LimelightServer($config);
   }
 
   /**
@@ -27,6 +27,26 @@ class LimelightResource extends restPHP_Resource {
       'sort_by' => 'update_date',
       'sort_order' => 'asc'
     );
+  }
+
+  /**
+   * Parse function to parse out resources returned by list functions.
+   *
+   * @param type $resources
+   */
+  protected function parse($resources, $className) {
+    // If media_list exists, use it instead.
+    if (isset($resources->media_list)) {
+      $resources = $resources->media_list;
+    }
+
+    // If channel_list exists, use it instead.
+    if (isset($resources->channel_list)) {
+      $resources = $resources->channel_list;
+    }
+
+    // Parse the resources.
+    return parent::parse($resources, $className);
   }
 
   /**

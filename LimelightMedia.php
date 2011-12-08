@@ -70,21 +70,6 @@ class LimelightMedia extends LimelightResource {
   }
 
   /**
-   * Parse function to parse out resources returned by list functions.
-   *
-   * @param type $resources
-   */
-  protected function parse($resources, $className) {
-    // If media_list exists, use it instead.
-    if (isset($resources->media_list)) {
-      $resources = $resources->media_list;
-    }
-
-    // Parse the resources.
-    return parent::parse($resources, $className);
-  }
-
-  /**
    * Returns all the channels that this media belongs too.
    */
   public function getChannels($filter = array()) {
@@ -103,6 +88,22 @@ class LimelightMedia extends LimelightResource {
   }
 
   /**
+   * Create / Delete a tag on a media item.
+   *
+   * @param type $tag
+   * @param type $method
+   * @return type
+   */
+  private function tag($tag, $method) {
+    $ret = FALSE;
+    $this->server->setConfig('authenticate', TRUE);
+    $endpoint = $this->type . '/' . $this->id . '/properties/tags/' . $tag;
+    $ret = $this->server->call($endpoint, $method, NULL, NULL, FALSE);
+    $this->server->setConfig('authenticate', FALSE);
+    return $ret;
+  }
+
+  /**
    * Create a tag for this media.
    *
    * @param type $tag
@@ -113,16 +114,40 @@ class LimelightMedia extends LimelightResource {
     // This media must have an ID.
     if ($this->id) {
 
+      // Create the tags if they are not set.
+      if (!$this->tags) {
+        $this->tags = array();
+      }
+
       // Add the tag to the tags array.
-      $this->tags->push($tag);
+      $this->tags[] = $tag;
 
       // Now make the call.
-      $this->server->setConfig('authenticate', TRUE);
-      $endpoint = $this->type . '/' . $this->id . '/properties/tags/' . $tag;
-      $ret = $this->server->call(HTTP_Request2::METHOD_POST, $endpoint, NULL, NULL);
-      $this->server->setConfig('authenticate', FALSE);
+      $ret = $this->tag($tag, HTTP_Request2::METHOD_PUT);
     }
 
+    return $ret;
+  }
+
+  /**
+   * Delete a tag for this media.
+   */
+  public function deleteTag($tag) {
+    $ret = FALSE;
+    if ($this->id) {
+
+      if ($this->tags) {
+        foreach ($this->tags as $i => $value) {
+          if ($tag == $value) {
+            unset($this->tags[$i]);
+            break;
+          }
+        }
+      }
+
+      // Now make the call.
+      $ret = $this->tag($tag, HTTP_Request2::METHOD_DELETE);
+    }
     return $ret;
   }
 

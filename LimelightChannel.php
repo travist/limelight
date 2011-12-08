@@ -42,6 +42,11 @@ class LimeLightChannel extends LimelightResource {
   /** The date the channel was created. */
   public $create_date = 0;
 
+  function __construct($params = null) {
+    parent::__construct(&$params);
+    $this->id = $this->id ? $this->id : $params['channel_id'];
+  }
+
   /**
    * Returns the endpoint for this resource.
    */

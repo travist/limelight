@@ -17,6 +17,7 @@ class HTTP_CachedRequest extends HTTP_Request2 {
 
     // Add the configuration for this class to the configuration. Default the timeout to 1hr.
     $this->config = array_merge($this->config, array(
+      'cache' => TRUE,
       'cache_timeout' => isset($config['cache_timeout']) ? $config['cache_timeout'] : 3600
     ));
 
@@ -38,7 +39,7 @@ class HTTP_CachedRequest extends HTTP_Request2 {
    * Return if we should cache.
    */
   public function should_cache() {
-    return ($this->method == HTTP_Request2::METHOD_GET);
+    return ($this->method == HTTP_Request2::METHOD_GET) && $this->config['cache'];
   }
 
   /**

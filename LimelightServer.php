@@ -12,10 +12,10 @@ class LimelightServer extends restPHP_Server {
   /**
    * Constructor
    */
-  function __construct() {
+  function __construct($config = array()) {
 
     // Call the constructor.
-    parent::__construct();
+    parent::__construct($config);
 
     // Override the config based on the Limelight configuration.
     $this->config = array_merge($this->config, LimelightConfig::getConfig());
