@@ -110,9 +110,20 @@ class restPHP_Resource {
   }
 
   /**
+   * A public static accessor to return an index of resources.
+   *
+   * @param type $filter
+   * @return type
+   */
+  public static function index($filter = array()) {
+    $resource = new get_class(self);
+    return $resource->__index($filter);
+  }
+
+  /**
    * Returns a list of self() objects.
    */
-  public function index($filter = array()) {
+  protected function __index($filter = array()) {
 
     // You must have an resource type to continue.
     if (!$this->type) {

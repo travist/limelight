@@ -5,11 +5,8 @@ class LimelightMediaTest extends PHPUnit_Framework_TestCase {
   // Test viewing a list of media.
   public function testMediaList() {
 
-    // Create a new media.
-    $media = new LimelightMedia();
-
     // Get a list of all published media.
-    $media_list = $media->index();
+    $media_list = LimeLightMedia::index();
 
     // Assert that it returned 25 items.
     $this->assertTrue(!!$media_list, 'The media list is defined.');
@@ -26,8 +23,7 @@ class LimelightMediaTest extends PHPUnit_Framework_TestCase {
   public function testUnpublishedMediaList() {
 
     // Create a new media object.
-    $media = new LimeLightMedia();
-    $media_list = $media->index(array('published' => FALSE));
+    $media_list = LimeLightMedia::index(array('published' => FALSE));
     $this->assertTrue(!!$media_list, 'The media list is defined.');
     $this->assertEquals(25, count($media_list));
     foreach ($media_list as $item) {
@@ -39,11 +35,8 @@ class LimelightMediaTest extends PHPUnit_Framework_TestCase {
   // Test loading a single media item.
   public function testMediaLoad() {
 
-    // Create a new media.
-    $media = new LimelightMedia();
-
     // Get a list of all published media.
-    $media_list = $media->index();
+    $media_list = LimeLightMedia::index();
 
     // Get the ID of the first item.
     $id = $media_list[0]->id;
@@ -55,6 +48,13 @@ class LimelightMediaTest extends PHPUnit_Framework_TestCase {
 
     // Now verify that they are the same...
     $this->assertEquals($media_node, $media_list[0]);
+  }
+
+  // Test getting the channels associated with a media.
+  public function testGetChannels() {
+
+    // Get a list of all published media.
+    $media_list = LimeLightMedia::index();
   }
 
 }
