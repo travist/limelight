@@ -78,12 +78,16 @@ class LimelightResource extends restPHP_Resource {
   /**
    * Create a set function which updates the parameters.
    */
-  public function set() {
+  public function set($params = array()) {
     if ($this->type) {
       $endpoint = $this->type;
       $endpoint .= $this->id ? ('/' . $this->id . '/properties') : '';
-      $this->server->set($endpoint, $this->getObject());
+      $params = $params ? $params : $this->getObject();
+      $method = $this->id ? 'put' : 'post';
+      $response = $this->server->{$method}($endpoint, $params);
+      $this->update($response);
     }
+    return $this;
   }
 
   /**
@@ -96,14 +100,10 @@ class LimelightResource extends restPHP_Resource {
       return false;
     }
 
-    if ($resource = parent::getObject()) {
-      return array_merge($resource, array(
-        'title' => $this->title
-      ));
-    }
-    else {
-      return FALSE;
-    }
+    // Return the object.
+    return array(
+      'title' => $this->title
+    );
   }
 }
 ?>

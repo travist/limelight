@@ -121,9 +121,9 @@ class restPHP_Resource {
    * @param type $filter
    * @return type
    */
-  public static function index($filter = array()) {
+  public static function index($filter = array(), $params = array()) {
     $class = get_called_class();
-    $resource = new $class();
+    $resource = new $class($params);
     return $resource->__index($filter);
   }
 
@@ -155,17 +155,33 @@ class restPHP_Resource {
       $endpoint = $this->type . '/' . $this->id;
       $this->update($this->server->get($endpoint, NULL, FALSE));
     }
+    return $this;
   }
 
   /**
-   * Sets the object.
+   * Generic function to set this complete object or properties within this object.
+   *
+   * Examples:
+   *
+   *   // To create a new object, which won't have an ID set.
+   *   $resource->set();
+   *
+   *   // To update an existing object, which would have an ID set.
+   *   $resource->set();
+   *
+   *   // To set a specific parameters within a resource.
+   *   $resource->set(array('param' => 'value'));
    */
-  public function set() {
+  public function set($params = array()) {
     if ($this->type) {
       $endpoint = $this->type;
       $endpoint .= $this->id ? ('/' . $this->id) : '';
-      $this->server->set($endpoint, $this->getObject());
+      $params = $params ? $params : $this->getObject();
+      $method = $this->id ? 'put' : 'post';
+      $response = $this->server->{$method}($endpoint, $params);
+      $this->update($response);
     }
+    return $this;
   }
 
   /**
@@ -175,14 +191,14 @@ class restPHP_Resource {
     if ($this->type && $this->id) {
       $endpoint = $this->type . '/' . $this->id;
       $this->server->delete($endpoint);
-
     }
+    return $this;
   }
 
   /**
    * Updates the data model based on the response.
    */
-  public function update($params) {
+  public function update($params = array()) {
 
     // If the params are set then update the data model.
     if ($params) {
@@ -201,6 +217,8 @@ class restPHP_Resource {
         }
       }
     }
+
+    return $this;
   }
 
   /**

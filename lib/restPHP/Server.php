@@ -142,50 +142,32 @@ class restPHP_Server {
   /**
    * Performs a get call.
    */
-  public function get($endpoint, $query) {
+  public function get($endpoint, $query, $has_format = TRUE) {
     $query = (array)$query;
-    return $this->call($endpoint, HTTP_Request2::METHOD_GET, NULL, $query);
+    return $this->call($endpoint, HTTP_Request2::METHOD_GET, NULL, $query, $has_format);
   }
 
   /**
    * Performs a put call.
    */
-  public function put($endpoint, $params) {
+  public function put($endpoint, $params, $has_format = TRUE) {
     $params = (array)$params;
-    return $this->call($endpoint, HTTP_Request2::METHOD_PUT, $params, NULL);
+    return $this->call($endpoint, HTTP_Request2::METHOD_PUT, $params, NULL, $has_format);
   }
 
   /**
    * Performs a post call.
    */
-  public function post($endpoint, $params) {
+  public function post($endpoint, $params, $has_format = TRUE) {
     $params = (array)$params;
-    return $this->call($endpoint, HTTP_Request2::METHOD_POST, $params, NULL);
+    return $this->call($endpoint, HTTP_Request2::METHOD_POST, $params, NULL, $has_format);
   }
 
   /**
    * Deletes an resource.
    */
   public function delete($endpoint) {
-    return $this->call($endpoint, HTTP_Request2::METHOD_DELETE, NULL, NULL);
-  }
-
-  /**
-   * Performs a set call, which is POST without an ID, and PUT with an ID.
-   */
-  public function set($endpoint, $params) {
-    if ($params) {
-      $params = (array)$params;
-      if (isset($params['id']) && $params['id']) {
-        return $this->put($endpoint, $params);
-      }
-      else {
-        return $this->post($endpoint, $params);
-      }
-    }
-    else {
-      return FALSE;
-    }
+    return $this->call($endpoint, HTTP_Request2::METHOD_DELETE, NULL, NULL, FALSE);
   }
 }
 ?>

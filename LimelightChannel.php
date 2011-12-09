@@ -4,7 +4,7 @@
 require_once 'LimelightMedia.php';
 require_once 'LimelightResource.php';
 
-class LimeLightChannel extends LimelightResource {
+class LimelightChannel extends LimelightResource {
 
   /** The description of the channel. */
   public $description = '';
@@ -28,10 +28,10 @@ class LimeLightChannel extends LimelightResource {
   public $autoplay_enabled = FALSE;
 
   /** An indicator that enables RSS functionality. */
-  public $rss_enabled = FALSE;
+  public $rss_enabled = TRUE;
 
   /** An indicator that enables iTunes functionality. */
-  public $itunes_rss_enabled = FALSE;
+  public $itunes_rss_enabled = TRUE;
 
   /** The date the channel was last set to 'Published'. */
   public $publish_date = 0;
@@ -42,9 +42,17 @@ class LimeLightChannel extends LimelightResource {
   /** The date the channel was created. */
   public $create_date = 0;
 
-  function __construct($params = null) {
-    parent::__construct(&$params);
+  /**
+   * Override the update method to provide custom ID's.
+   *
+   * @param type $params
+   * @return LimelightChannel
+   */
+  public function update($params = array()) {
+    $params = (array)$params;
+    parent::update($params);
     $this->id = $this->id ? $this->id : $params['channel_id'];
+    return $this;
   }
 
   /**
@@ -64,6 +72,51 @@ class LimeLightChannel extends LimelightResource {
     ));
     $endpoint = $this->type . '/' . $this->id . '/media';
     return $this->getIndex($endpoint, $filter, 'LimelightMedia');
+  }
+
+  /**
+   * Create or Remove a media from a channel.
+   *
+   * @param type $media
+   * @param type $method
+   * @return type
+   */
+  private function setMedia($media, $method) {
+    $ret = FALSE;
+    if ($this->id && $media && $media->id) {
+      $this->server->setConfig('authenticate', TRUE);
+      $endpoint = $this->type . '/' . $this->id . '/media/' . $media->id;
+      $ret = $this->server->call($endpoint, $method, NULL, NULL, FALSE);
+      $this->server->setConfig('authenticate', FALSE);
+    }
+    return $ret;
+  }
+
+  /**
+   * Adds existing media to this channel.
+   */
+  public function addMedia($media) {
+    $this->setMedia($media, HTTP_Request2::METHOD_PUT);
+  }
+
+  /**
+   * Remove media from an existing channel.
+   *
+   * @param type $media
+   */
+  public function removeMedia($media) {
+    $this->setMedia($media, HTTP_Request2::METHOD_DELETE);
+  }
+
+  /**
+   * Sets the publish state of this channel.
+   */
+  public function publish($state = TRUE) {
+    $this->set(array(
+      'state' => ($state ? 'Published' : 'NotPublished'),
+      'rss_enabled' => TRUE,
+      'itunes_rss_enabled' => TRUE
+    ));
   }
 
   /**

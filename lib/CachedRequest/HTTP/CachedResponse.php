@@ -10,7 +10,7 @@ class HTTP_CachedResponse {
   protected $request = null;
   protected $response = null;
 
-  // Construct a new LimelightCachedResponse object.
+  // Construct a new CachedResponse object.
   function __construct($request, $response) {
     $this->request = $request;
     $this->response = $response;

@@ -57,9 +57,17 @@ class LimelightMedia extends LimelightResource {
   /** The date the media was created. */
   public $create_date = 0;
 
-  function __construct($params = null) {
-    parent::__construct(&$params);
+  /**
+   * Override the update method to provide custom ID's.
+   *
+   * @param type $params
+   * @return LimelightMedia
+   */
+  public function update($params = array()) {
+    $params = (array)$params;
+    parent::update($params);
     $this->id = $this->id ? $this->id : $params['media_id'];
+    return $this;
   }
 
   /**

@@ -10,10 +10,8 @@ class LimelightMediaTest extends PHPUnit_Framework_TestCase {
 
     // Assert that it returned 25 items.
     $this->assertTrue(!!$media_list, 'The media list is defined.');
-    $this->assertEquals(25, count($media_list));
-
     foreach ($media_list as $item) {
-
+      $this->assertTrue(get_class($item) == 'LimelightMedia', 'Class is LimelightMedia');
       $this->assertTrue(isset($item->id) && $item->id, 'ID is defined');
       $this->assertTrue(isset($item->title) && $item->title, 'Title is defined.');
     }
