@@ -52,7 +52,8 @@ class LimelightConfig {
 
     // If there is a global limelight_config variable defined, us it.
     if ($limelight_config) {
-      return $limelight_config;
+      $defaults = self::$config;
+      return array_merge($defaults, $limelight_config);
     }
     else {
 
