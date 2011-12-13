@@ -66,7 +66,9 @@ class LimelightMedia extends LimelightResource {
   public function update($params = array()) {
     $params = (array)$params;
     parent::update($params);
-    $this->id = $this->id ? $this->id : $params['media_id'];
+    if (isset($params['media_id'])) {
+      $this->id = $this->id ? $this->id : $params['media_id'];
+    }
     return $this;
   }
 

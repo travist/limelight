@@ -51,7 +51,9 @@ class LimelightChannel extends LimelightResource {
   public function update($params = array()) {
     $params = (array)$params;
     parent::update($params);
-    $this->id = $this->id ? $this->id : $params['channel_id'];
+    if (isset($params['channel_id'])) {
+      $this->id = $this->id ? $this->id : $params['channel_id'];
+    }
     return $this;
   }
 
