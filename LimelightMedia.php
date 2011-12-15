@@ -7,55 +7,55 @@ require_once 'LimelightChannel.php';
 class LimelightMedia extends LimelightResource {
 
   /** The media file. */
-  public $media_file = '';
+  public $media_file = NULL;
 
   /** The description of the media. */
-  public $description = '';
+  public $description = NULL;
 
   /** The media type of this media. */
-  public $media_type = '';
+  public $media_type = NULL;
 
   /** The original filename. */
-  public $original_filename = '';
+  public $original_filename = NULL;
 
   /** The state of this media. */
-  public $state = '';
+  public $state = NULL;
 
   /** The duration in milliseconds. */
-  public $duration_in_milliseconds = 0;
+  public $duration_in_milliseconds = NULL;
 
   /** The total storage in bytes. */
-  public $total_storage_in_bytes = 0;
+  public $total_storage_in_bytes = NULL;
 
   /** The category of this media. */
-  public $category = '';
+  public $category = NULL;
 
   /** The reference id. */
-  public $ref_id = '';
+  public $ref_id = NULL;
 
   /** The restriction rule ID. */
-  public $restrictionrule_id = '';
+  public $restrictionrule_id = NULL;
 
   /** The thumbnails for thie media. */
-  public $thumbnails = array();
+  public $thumbnails = NULL;
 
   /** The tags associated with this media. */
-  public $tags = array();
+  public $tags = NULL;
 
   /** The scheduled start date. */
-  public $sched_start_date = 0;
+  public $sched_start_date = NULL;
 
   /** The scheduled end date. */
-  public $sched_end_date = 0;
+  public $sched_end_date = NULL;
 
   /** The date the media was published. */
-  public $publish_date = 0;
+  public $publish_date = NULL;
 
   /** The date the media was upated. */
-  public $update_date = 0;
+  public $update_date = NULL;
 
   /** The date the media was created. */
-  public $create_date = 0;
+  public $create_date = NULL;
 
   /**
    * Override the update method to provide custom ID's.

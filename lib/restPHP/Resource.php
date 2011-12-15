@@ -6,13 +6,13 @@ require_once 'Server.php';
 class restPHP_Resource {
 
   /** The ID of this resource. */
-  public $id = '';
+  public $id = NULL;
 
   /** The resource type. */
   public $type = '';
 
   /** The Server object. */
-  public $server = null;
+  public $server = NULL;
 
   /** Constructor */
   function __construct($params = null) {
@@ -159,6 +159,16 @@ class restPHP_Resource {
   }
 
   /**
+   * Return the filtered object.
+   *
+   * @return type
+   */
+  public function getFilteredObject() {
+    $obj = $this->getObject();
+    return array_filter($obj, create_function('$x', 'return $x !== NULL;'));
+  }
+
+  /**
    * Generic function to set this complete object or properties within this object.
    *
    * Examples:
@@ -176,7 +186,7 @@ class restPHP_Resource {
     if ($this->type) {
       $endpoint = $this->type;
       $endpoint .= $this->id ? ('/' . $this->id) : '';
-      $params = $params ? $params : $this->getObject();
+      $params = $params ? $params : $this->getFilteredObject();
       $method = $this->id ? 'put' : 'post';
       $response = $this->server->{$method}($endpoint, $params);
       $this->update($response);
@@ -210,7 +220,7 @@ class restPHP_Resource {
       foreach ($params as $key => $value) {
 
         // Check to see if this parameter exists.
-        if (isset($this->{$key})) {
+        if (isset($this->{$key}) || ($this->{$key} === NULL)) {
 
           // Update the data model.
           $this->{$key} = $value;

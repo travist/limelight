@@ -7,13 +7,13 @@ require_once 'LimelightResource.php';
 class LimelightChannel extends LimelightResource {
 
   /** The description of the channel. */
-  public $description = '';
+  public $description = NULL;
 
   /** The URL of the thumbnail image associated with the channel. */
-  public $thumbnail_url = '';
+  public $thumbnail_url = NULL;
 
   /** Current state of the channel. */
-  public $state = '';
+  public $state = NULL;
 
   /** An indicator that enables share with a friend functionality. */
   public $email_enabled = FALSE;
@@ -34,13 +34,13 @@ class LimelightChannel extends LimelightResource {
   public $itunes_rss_enabled = TRUE;
 
   /** The date the channel was last set to 'Published'. */
-  public $publish_date = 0;
+  public $publish_date = NULL;
 
   /** The date the channel was last updated. */
-  public $update_date = 0;
+  public $update_date = NULL;
 
   /** The date the channel was created. */
-  public $create_date = 0;
+  public $create_date = NULL;
 
   /**
    * Override the update method to provide custom ID's.

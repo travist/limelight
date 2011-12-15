@@ -7,10 +7,10 @@ require_once 'LimelightChannel.php';
 class LimelightChannelGroup extends LimelightResource {
 
   /** The date the channel was last updated. */
-  public $update_date = 0;
+  public $update_date = NULL;
 
   /** The date the channel was created. */
-  public $create_date = 0;
+  public $create_date = NULL;
 
   /**
    * Returns the endpoint for this resource.

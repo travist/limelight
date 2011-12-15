@@ -8,7 +8,7 @@ class LimelightResource extends restPHP_Resource {
 
 
   /** The title of this resource. */
-  public $title = '';
+  public $title = NULL;
 
   /**
    * Create the server object.
@@ -82,7 +82,7 @@ class LimelightResource extends restPHP_Resource {
     if ($this->type) {
       $endpoint = $this->type;
       $endpoint .= $this->id ? ('/' . $this->id . '/properties') : '';
-      $params = $params ? $params : $this->getObject();
+      $params = $params ? $params : $this->getFilteredObject();
       $method = $this->id ? 'put' : 'post';
       $response = $this->server->{$method}($endpoint, $params);
       $this->update($response);
