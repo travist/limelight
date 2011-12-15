@@ -30,15 +30,6 @@ class LimelightMediaTest extends PHPUnit_Framework_TestCase {
     }
   }
 
-  // Test an upload of a media file.
-  public function testMediaUpload() {
-    $rand_title = 'Test' . rand();
-    $media = new LimelightMedia(array(
-      'title' => $rand_title,
-      'media_file' => 'jellies.mp4'
-    ));
-  }
-
   // Test loading a single media item.
   public function testMediaLoad() {
 
@@ -75,23 +66,67 @@ class LimelightMediaTest extends PHPUnit_Framework_TestCase {
     }
   }
 
+  // Test an upload of a media file.
+  public function testMediaUpload() {
+    $this->media = new LimelightMedia(array(
+      'title' => 'TestMedia__DELETEME',
+      'media_file' => 'jellies.mp4'
+    ));
+    $this->media->set();
+
+    // If the upload passed, then it would set the values of the media.
+    $this->assertTrue($this->media->media_type == 'Video', 'Type is video');
+    $this->assertTrue($this->media->state == 'New', 'State is New');
+    $this->assertTrue(isset($this->media->id) && $this->media->id, 'ID is defined');
+  }
+/** TO-DO: GET THIS WORKING!!!!
+ * 
   // Test adding a tag.
   public function testAddDeleteTag() {
-    // Get a list of all published media.
-    /** TO-DO:  FIGURE OUT WHY THE DELETE IS FAILING...
-    $tag = 'testing_one_two_three';
-    $media_list = LimelightMedia::index();
-    $media = $media_list[0];
-    $media->addTag($tag);
+    $media_list = LimelightMedia::index(array('published' => FALSE, 'server' => array('request' => array('cache' => FALSE))));
+    $media = NULL;
+    foreach ($media_list as $item) {
+      if ($item->title == 'TestMedia__DELETEME') {
+        $media = $item;
+        break;
+      }
+    }
 
-    // Now get the media separately, with server caching turned off...
-    $check = new LimelightMedia(array('id' => $media->id, 'server' => array('request' => array('cache' => FALSE))));
-    $this->assertTrue(in_array($tag, $check->tags), "Tag was set.");
-    $check->deleteTag($tag);
-    $check->get();
-    $this->assertTrue(!in_array($tag, $check->tags), 'Tag was deleted.');
-     *
-     */
+    if ($media && $media->id) {
+      // Get a list of all published media.
+      $tag = 'testing_one_two_three';
+      $media->addTag($tag);
+
+      // Now get the media separately, with server caching turned off...
+      $check = new LimelightMedia(array('id' => $media->id, 'server' => array('request' => array('cache' => FALSE))));
+      $this->assertTrue(in_array($tag, $check->tags), "Tag was set.");
+      $check->deleteTag($tag);
+      $check->get();
+      $this->assertTrue(!in_array($tag, $check->tags), 'Tag was deleted.');
+    }
   }
+
+  public function testMediaDelete() {
+    $media_list = LimelightMedia::index(array('published' => FALSE, 'server' => array('request' => array('cache' => FALSE))));
+    $media = NULL;
+    foreach ($media_list as $item) {
+      if ($item->title == 'TestMedia__DELETEME') {
+        $media = $item;
+        break;
+      }
+    }
+
+    if ($media && $media->id) {
+
+      // Delete the media...
+      $media->delete();
+
+      // Check to make sure it is gone...
+      $check = new LimelightMedia(array('id' => $media->id, 'server' => array('request' => array('cache' => FALSE))));
+      $this->assertTrue(!$check->title, 'Media was deleted...');
+    }
+  }
+ *
+ */
 }
 ?>
