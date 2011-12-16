@@ -11,12 +11,24 @@ class HTTP_FileCachedRequest extends HTTP_CachedRequest {
   protected $cache_path = '';
   protected $cache_exists = FALSE;
 
+  // The constructor.
+  function __construct($url = null, $method = self::METHOD_GET, array $config = array()) {
+
+    // Add the configuration for this class to the configuration.
+    $this->config = array_merge($this->config, array(
+      'cache_directory' => dirname(__FILE__) . '/cache'
+    ));
+
+    // Call the parent constructor.
+    parent::__construct($url, $method, $config);
+  }
+
   /**
    * Sets the cache name.
    */
   public function set_cache_name($cache_name) {
     parent::set_cache_name($cache_name);
-    $this->cache_path = dirname(__FILE__) . '/cache/' . $cache_name;
+    $this->cache_path = $this->config['cache_directory'] . '/' . $cache_name;
     $this->cache_exists = file_exists($this->cache_path);
   }
 
