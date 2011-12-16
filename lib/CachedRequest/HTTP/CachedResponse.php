@@ -38,6 +38,9 @@ class HTTP_CachedResponse {
    */
   public function getBody() {
 
+    // Default the response to nothing...
+    $response = '';
+
     /**
      * If we should cache and the cache is valid, then go ahead
      * and return the cache response.
