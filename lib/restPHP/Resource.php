@@ -220,7 +220,7 @@ class restPHP_Resource {
       foreach ($params as $key => $value) {
 
         // Check to see if this parameter exists.
-        if (isset($this->{$key}) || ($this->{$key} === NULL)) {
+        if (property_exists($this, $key)) {
 
           // Update the data model.
           $this->{$key} = $value;
