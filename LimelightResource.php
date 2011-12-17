@@ -71,7 +71,17 @@ class LimelightResource extends restPHP_Resource {
   public function get() {
     if ($this->id && $this->type) {
       $endpoint = $this->type . '/' . $this->id . '/properties';
-      $this->update($this->server->get($endpoint, NULL, FALSE));
+      $params = $this->server->get($endpoint, NULL, FALSE);
+      $error = isset($params->errors) && $params->errors;
+      if ($params && !$error) {
+
+        // If this is a valid response and there is an ID, update.
+        $this->update($params);
+      }
+      else {
+        // Set the ID to NULL so that set will create new...
+        $this->id = NULL;
+      }
     }
   }
 
