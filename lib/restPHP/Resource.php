@@ -14,6 +14,12 @@ class restPHP_Resource {
   /** The Server object. */
   public $server = NULL;
 
+  /** A variable to keep track if this object represents the server object. */
+  public $synced = FALSE;
+
+  /** Keeps track of differences between local and server data. */
+  public $diff = array();
+
   /** Constructor */
   function __construct($params = null) {
 
@@ -148,17 +154,29 @@ class restPHP_Resource {
   }
 
   /**
+   * Returns the endpoint for this resource to perform both get and set
+   * operations.
+   */
+  protected function endpoint() {
+    $endpoint = $this->type;
+    $endpoint .= $this->id ? ('/' . $this->id) : '';
+    return $endpoint;
+  }
+
+  /**
    * Gets the properties of this resource.
    */
   public function get() {
     if ($this->type && $this->id) {
-      $endpoint = $this->type . '/' . $this->id;
-      $params = $this->server->get($endpoint, NULL, FALSE);
+      $params = $this->server->get($this->endpoint(), NULL, FALSE);
       $error = isset($params->errors) && $params->errors;
       if ($params && !$error) {
 
         // If this is a valid response and there is an ID, update.
         $this->update($params);
+
+        // Set that this object is synced.
+        $this->synced = TRUE;
       }
       else {
 
@@ -195,11 +213,9 @@ class restPHP_Resource {
    */
   public function set($params = array()) {
     if ($this->type) {
-      $endpoint = $this->type;
-      $endpoint .= $this->id ? ('/' . $this->id) : '';
       $params = $params ? $params : $this->getFilteredObject();
       $method = $this->id ? 'put' : 'post';
-      $response = $this->server->{$method}($endpoint, $params);
+      $response = $this->server->{$method}($this->endpoint(), $params);
       $this->update($response);
     }
     return $this;
@@ -223,6 +239,9 @@ class restPHP_Resource {
 
     // If the params are set then update the data model.
     if ($params) {
+
+      // Set the sync flag to false.
+      $this->synced = FALSE;
 
       // Convert this to an array.
       $params = (array)$params;

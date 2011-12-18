@@ -66,38 +66,12 @@ class LimelightResource extends restPHP_Resource {
   }
 
   /**
-   * Gets the properties of this resource.
+   * Returns the endpoint for this resource for both get and set operations.
    */
-  public function get() {
-    if ($this->id && $this->type) {
-      $endpoint = $this->type . '/' . $this->id . '/properties';
-      $params = $this->server->get($endpoint, NULL, FALSE);
-      $error = isset($params->errors) && $params->errors;
-      if ($params && !$error) {
-
-        // If this is a valid response and there is an ID, update.
-        $this->update($params);
-      }
-      else {
-        // Set the ID to NULL so that set will create new...
-        $this->id = NULL;
-      }
-    }
-  }
-
-  /**
-   * Create a set function which updates the parameters.
-   */
-  public function set($params = array()) {
-    if ($this->type) {
-      $endpoint = $this->type;
-      $endpoint .= $this->id ? ('/' . $this->id . '/properties') : '';
-      $params = $params ? $params : $this->getFilteredObject();
-      $method = $this->id ? 'put' : 'post';
-      $response = $this->server->{$method}($endpoint, $params);
-      $this->update($response);
-    }
-    return $this;
+  protected function endpoint() {
+    $endpoint = $this->type;
+    $endpoint .= $this->id ? ('/' . $this->id . '/properties') : '';
+    return $endpoint;
   }
 
   /**
