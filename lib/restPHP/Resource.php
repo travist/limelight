@@ -89,7 +89,7 @@ class restPHP_Resource {
       foreach ($resources as &$resource) {
 
         // Convert it to a resource object.
-        $resource = new $className($resource);
+        $resource = new $className($resource, FALSE);
       }
     }
 
