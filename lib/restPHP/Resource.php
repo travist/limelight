@@ -14,9 +14,6 @@ class restPHP_Resource {
   /** The Server object. */
   public $server = NULL;
 
-  /** A variable to keep track if this object represents the server object. */
-  public $synced = FALSE;
-
   /** Keeps track of differences between local and server data. */
   public $diff = array();
 
@@ -33,16 +30,14 @@ class restPHP_Resource {
     // Define an empty type.
     $this->type = $this->getType();
 
-    // If the ID was the only parameter provided, then we can assume that
-    // they wish to get the object within the construct.
-    if (isset($params['id']) && (count($params) === 1)) {
-      $this->id = $params['id'];
-      $this->get();
-    }
-    else {
+    // Update the object.
+    $this->update($params);
 
-      // Otherwise just update the object with the params.
-      $this->update($params);
+    // If the ID was provided, then we also need to get the object from the
+    // server to determine differences between what was provided in the
+    // constructor vs. what data is on the server.
+    if (isset($params['id'])) {
+      $this->get();
     }
   }
 
@@ -171,9 +166,6 @@ class restPHP_Resource {
 
         // If this is a valid response and there is an ID, update.
         $this->update($params);
-
-        // Set that this object is synced.
-        $this->synced = TRUE;
       }
       else {
 
@@ -185,13 +177,19 @@ class restPHP_Resource {
   }
 
   /**
-   * Return the filtered object.
+   * Return the filtered object that will be sent to the server.  If a diff or
+   * params are provided, then it will only send the values that exist within
+   * the diff or params that also exist in the data model. Wheras if there is
+   * no diff or params, then it will return only the parameters with a valid
+   * value.
    *
    * @return type
    */
-  public function getFilteredObject() {
+  public function getFilteredObject($params = array()) {
     $obj = $this->getObject();
-    return array_filter($obj, create_function('$x', 'return $x !== NULL;'));
+    $obj = array_filter($obj, create_function('$x', 'return $x !== NULL;'));
+    $params = $params ? $params : $this->diff;
+    return $params ? array_intersect_key($params, $obj) : $obj;
   }
 
   /**
@@ -210,10 +208,13 @@ class restPHP_Resource {
    */
   public function set($params = array()) {
     if ($this->type) {
-      $params = $params ? $params : $this->getFilteredObject();
+      $params = $this->getFilteredObject($params);
       $method = $this->id ? 'put' : 'post';
       $response = $this->server->{$method}($this->endpoint(), $params);
-      $this->update($response);
+      $error = isset($response->errors) && $response->errors;
+      if (!$error) {
+        $this->update($response);
+      }
     }
     return $this;
   }
@@ -236,9 +237,6 @@ class restPHP_Resource {
     // If the params are set then update the data model.
     if ($params) {
 
-      // Set the sync flag to false.
-      $this->synced = FALSE;
-
       // Convert this to an array.
       $params = (array)$params;
 
@@ -248,8 +246,20 @@ class restPHP_Resource {
         // Check to see if this parameter exists.
         if (property_exists($this, $key)) {
 
-          // Update the data model.
-          $this->{$key} = $value;
+          // If the current value is already set, and the value from this update
+          // is different from the value that is already in this object, then
+          // we need to keep track of this difference so that when we push an
+          // update, we don't send everything.
+          if (isset($this->{$key}) && ($this->{$key} != $value)) {
+
+            // Store this value in the diff array.
+            $this->diff[$key] = $this->{$key};
+          }
+          else {
+
+            // Otherwise, update the data model with this value.
+            $this->{$key} = $value;
+          }
         }
       }
     }
