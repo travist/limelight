@@ -18,7 +18,7 @@ class restPHP_Resource {
   public $diff = array();
 
   /** Constructor */
-  function __construct($params = null) {
+  function __construct($params = null, $sync = TRUE) {
 
     // Convert the params to an array.
     $params = (array)$params;
@@ -36,7 +36,7 @@ class restPHP_Resource {
     // If the ID was provided, then we also need to get the object from the
     // server to determine differences between what was provided in the
     // constructor vs. what data is on the server.
-    if (isset($params['id'])) {
+    if ($sync && isset($params['id'])) {
       $this->get();
     }
   }
@@ -124,7 +124,7 @@ class restPHP_Resource {
    */
   public static function index($filter = array(), $params = array()) {
     $class = get_called_class();
-    $resource = new $class($params);
+    $resource = new $class($params, FALSE);
     return $resource->__index($filter);
   }
 
