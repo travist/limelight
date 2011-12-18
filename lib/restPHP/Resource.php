@@ -146,11 +146,8 @@ class restPHP_Resource {
     // Get a filter with provided defaults.
     $filter = $this->getFilter($filter, $this->getIndexDefaults());
 
-    // Get the endpoint.
-    $endpoint = $this->type;
-
     // Return an index list.
-    return $this->getIndex($endpoint, $filter, get_class($this));
+    return $this->getIndex($this->endpoint(), $filter, get_class($this));
   }
 
   /**
@@ -226,8 +223,7 @@ class restPHP_Resource {
    */
   public function delete() {
     if ($this->type && $this->id) {
-      $endpoint = $this->type . '/' . $this->id;
-      $this->server->delete($endpoint);
+      $this->server->delete($this->endpoint());
     }
     return $this;
   }
