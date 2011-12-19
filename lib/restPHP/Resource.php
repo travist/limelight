@@ -255,11 +255,9 @@ class restPHP_Resource {
             // Store this value in the diff array.
             $this->diff[$key] = $this->{$key};
           }
-          else {
 
-            // Otherwise, update the data model with this value.
-            $this->{$key} = $value;
-          }
+          // Update the data model with this value.
+          $this->{$key} = $value;
         }
       }
     }

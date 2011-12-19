@@ -97,8 +97,31 @@ class LimelightChannel extends LimelightResource {
   /**
    * Adds existing media to this channel.
    */
-  public function addMedia($media) {
-    $this->setMedia($media, HTTP_Request2::METHOD_PUT);
+  public function addMedia($media, $allow_duplicates = FALSE) {
+
+    // Default find to false.
+    $found = FALSE;
+
+    // If they don't want duplicates, then we need to search existing
+    // media in this channel.
+    if (!$allow_duplicates) {
+
+      // Get all the media in this channel.
+      $media = $this->getMedia();
+
+      // Iterate through the media and find this media.
+      foreach ($media as $list_media) {
+        if ($media->id == $list_media->id) {
+          $found = TRUE;
+          break;
+        }
+      }
+    }
+
+    // Only add if the media doesn't already exist in the channel.
+    if (!$found) {
+      $this->setMedia($media, HTTP_Request2::METHOD_PUT);
+    }
   }
 
   /**
