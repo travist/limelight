@@ -185,7 +185,7 @@ class restPHP_Resource {
    *
    * @return type
    */
-  public function getFilteredObject($params = array()) {
+  protected function getFilteredObject($params = array()) {
 
     // Get the filtered object based on what values are actually set.
     $obj = $this->getObject();

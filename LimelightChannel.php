@@ -107,10 +107,10 @@ class LimelightChannel extends LimelightResource {
     if (!$allow_duplicates) {
 
       // Get all the media in this channel.
-      $media = $this->getMedia();
+      $media_list = $this->getMedia();
 
       // Iterate through the media and find this media.
-      foreach ($media as $list_media) {
+      foreach ($media_list as $list_media) {
         if ($media->id == $list_media->id) {
           $found = TRUE;
           break;
