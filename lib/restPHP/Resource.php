@@ -186,10 +186,27 @@ class restPHP_Resource {
    * @return type
    */
   public function getFilteredObject($params = array()) {
+
+    // Get the filtered object based on what values are actually set.
     $obj = $this->getObject();
     $obj = array_filter($obj, create_function('$x', 'return $x !== NULL;'));
-    $params = $params ? $params : $this->diff;
-    return $params ? array_intersect_key($params, $obj) : $obj;
+
+    // If there is an ID, then we want the params to only be what is different
+    // or what they provided within the params argument.
+    if ($this->id) {
+
+      // Use either what they provided, or the diff.
+      $params = $params ? $params : $this->diff;
+      $params = $params ? array_intersect_key($params, $obj) : array();
+    }
+    else {
+
+      // Return all the values that are valid within this data model for insert.
+      $params = $obj;
+    }
+
+    // Return the parameters.
+    return $params;
   }
 
   /**
@@ -207,13 +224,20 @@ class restPHP_Resource {
    *   $resource->set(array('param' => 'value'));
    */
   public function set($params = array()) {
+
+    // Make sure that we check the type.
     if ($this->type) {
-      $params = $this->getFilteredObject($params);
-      $method = $this->id ? 'put' : 'post';
-      $response = $this->server->{$method}($this->endpoint(), $params);
-      $error = isset($response->errors) && $response->errors;
-      if (!$error) {
-        $this->update($response);
+
+      // Only update if the filtered parameters returns something to update.
+      if ($params = $this->getFilteredObject($params)) {
+
+        // Get the method and then send the request.
+        $method = $this->id ? 'put' : 'post';
+        $response = $this->server->{$method}($this->endpoint(), $params);
+        $error = isset($response->errors) && $response->errors;
+        if (!$error) {
+          $this->update($response);
+        }
       }
     }
     return $this;
