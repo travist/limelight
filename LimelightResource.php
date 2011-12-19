@@ -30,6 +30,17 @@ class LimelightResource extends restPHP_Resource {
   }
 
   /**
+   * Get the filtered object, which for limelight, always requires the title.
+   *
+   * @param type $params
+   */
+  protected function getFilteredObject($params = array()) {
+    $params = parent::getFilteredObject($params);
+    $params['title'] = $this->title;
+    return $params;
+  }
+
+  /**
    * Parse function to parse out resources returned by list functions.
    *
    * @param type $resources

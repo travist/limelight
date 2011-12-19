@@ -137,11 +137,7 @@ class LimelightChannel extends LimelightResource {
    * Sets the publish state of this channel.
    */
   public function publish($state = TRUE) {
-    $this->set(array(
-      'state' => ($state ? 'Published' : 'NotPublished'),
-      'rss_enabled' => TRUE,
-      'itunes_rss_enabled' => TRUE
-    ));
+    $this->set(array('state' => ($state ? 'Published' : 'NotPublished')));
   }
 
   /**
