@@ -80,19 +80,67 @@ class LimelightMedia extends LimelightResource {
   }
 
   /**
+   * Create a search index.
+   *
+   * This function allows you to search media on the Limelight network.
+   */
+  public static function search($query = array(), $operator = 'AND', $params = array()) {
+
+    // Build the query string for the search.
+    $query_string = array();
+    foreach ($query as $key => $value) {
+      $query_string[] = strtolower($key) . ':' . strtolower($value);
+    }
+
+    // We need to rewrite the query based on the operator.
+    $search_query = array(strtolower($operator) => implode(';', $query_string));
+
+    // Now get the index with this query.
+    $class = get_called_class();
+    return $class::index($search_query, $params);
+  }
+
+  /**
+   * All index queries for media require authentication.
+   * 
+   * @param type $query
+   * @return type
+   */
+  protected function __index($query = array()) {
+    $this->server->setConfig('authenticate', TRUE);
+    $ret = parent::__index($query);
+    $this->server->setConfig('authenticate', FALSE);
+    return $ret;
+  }
+
+  /**
+   * Returns the endpoint for this resource for both get and set operations.
+   */
+  protected function endpoint($type) {
+    $endpoint = $this->type;
+    if ($type == 'index') {
+      $endpoint .= ($type == 'index') ? ('/search') : '';
+    }
+    else {
+      $endpoint .= $this->id ? ('/' . $this->id . '/properties') : '';
+    }
+    return $endpoint;
+  }
+
+  /**
    * Returns all the channels that this media belongs too.
    */
-  public function getChannels($filter = array()) {
+  public function getChannels($query = array()) {
     // Return a typelist of channels.
     $this->server->setConfig('authenticate', TRUE);
-    $filter = $this->getFilter($filter, array(
+    $query = $this->getQuery($query, array(
       'page_id' => 0,
       'page_size' => 25,
       'sort_by' => 'update_date',
       'sort_order' => 'asc'
     ));
     $endpoint = $this->type . '/' . $this->id . '/channels';
-    $list = $this->getIndex($endpoint, $filter, 'LimelightChannel');
+    $list = $this->getIndex($endpoint, $query, 'LimelightChannel');
     $this->server->setConfig('authenticate', FALSE);
     return $list;
   }

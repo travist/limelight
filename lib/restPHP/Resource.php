@@ -60,12 +60,12 @@ class restPHP_Resource {
   }
 
   /**
-   * Returns a filter with provided defaults.
+   * Returns a query with provided defaults.
    *
-   * @return The correct filter based on defaults and provided values.
+   * @return The correct query based on defaults and provided values.
    */
-  protected function getFilter($filter, $defaults) {
-    return $filter ? array_merge($defaults, $filter) : $defaults;
+  protected function getQuery($query, $defaults) {
+    return $query ? array_merge($defaults, $query) : $defaults;
   }
 
   /**
@@ -100,10 +100,10 @@ class restPHP_Resource {
   /**
    * Returns the list of resources.
    */
-  protected function getIndex($endpoint, $filter, $className) {
+  protected function getIndex($endpoint, $query, $className) {
 
     // Get the resources from the server.
-    if ($resources = $this->server->get($endpoint, $filter)) {
+    if ($resources = $this->server->get($endpoint, $query)) {
 
       // Now return the parsed resources.
       return $this->parse($resources, $className);
@@ -119,37 +119,37 @@ class restPHP_Resource {
    * A public static accessor to return an index of resources.
    * Requires PHP 5.3.
    *
-   * @param type $filter
+   * @param type $query
    * @return type
    */
-  public static function index($filter = array(), $params = array()) {
+  public static function index($query = array(), $params = array()) {
     $class = get_called_class();
     $resource = new $class($params, FALSE);
-    return $resource->__index($filter);
+    return $resource->__index($query);
   }
 
   /**
    * Returns a list of self() objects.
    */
-  protected function __index($filter = array()) {
+  protected function __index($query = array()) {
 
     // You must have an resource type to continue.
     if (!$this->type) {
       return FALSE;
     }
 
-    // Get a filter with provided defaults.
-    $filter = $this->getFilter($filter, $this->getIndexDefaults());
+    // Get a query with provided defaults.
+    $query = $this->getQuery($query, $this->getIndexDefaults());
 
     // Return an index list.
-    return $this->getIndex($this->endpoint(), $filter, get_class($this));
+    return $this->getIndex($this->endpoint('index'), $query, get_class($this));
   }
 
   /**
    * Returns the endpoint for this resource to perform both get and set
    * operations.
    */
-  protected function endpoint() {
+  protected function endpoint($type) {
     $endpoint = $this->type;
     $endpoint .= $this->id ? ('/' . $this->id) : '';
     return $endpoint;
@@ -160,7 +160,7 @@ class restPHP_Resource {
    */
   public function get() {
     if ($this->type && $this->id) {
-      $params = $this->server->get($this->endpoint(), NULL, FALSE);
+      $params = $this->server->get($this->endpoint('get'), NULL, FALSE);
       $error = isset($params->errors) && $params->errors;
       if ($params && !$error) {
 
@@ -233,7 +233,7 @@ class restPHP_Resource {
 
         // Get the method and then send the request.
         $method = $this->id ? 'put' : 'post';
-        $response = $this->server->{$method}($this->endpoint(), $params);
+        $response = $this->server->{$method}($this->endpoint('set'), $params);
         $error = isset($response->errors) && $response->errors;
         if (!$error) {
           $this->update($response);
@@ -248,7 +248,7 @@ class restPHP_Resource {
    */
   public function delete() {
     if ($this->type && $this->id) {
-      $this->server->delete($this->endpoint());
+      $this->server->delete($this->endpoint('delete'));
     }
     return $this;
   }

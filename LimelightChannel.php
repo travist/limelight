@@ -58,22 +58,28 @@ class LimelightChannel extends LimelightResource {
   }
 
   /**
-   * Returns the endpoint for this resource.
+   * Returns the type for this resource.
    */
   public function getType() {
     return 'channels';
   }
 
+  protected function endpoint($type) {
+    if ($type = 'index') {
+
+    }
+  }
+
   /**
    * Returns all the media associated with this channel.
    */
-  public function getMedia($filter = array()) {
-    $filter = $this->getFilter($filter, array(
+  public function getMedia($query = array()) {
+    $query = $this->getQuery($query, array(
       'page_id' => 0,
       'page_size' => 25
     ));
     $endpoint = $this->type . '/' . $this->id . '/media';
-    return $this->getIndex($endpoint, $filter, 'LimelightMedia');
+    return $this->getIndex($endpoint, $query, 'LimelightMedia');
   }
 
   /**

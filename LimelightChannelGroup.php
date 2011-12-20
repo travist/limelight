@@ -34,13 +34,13 @@ class LimelightChannelGroup extends LimelightResource {
   /**
    * Returns all the channels within this channel group.
    */
-  public function getChannels($filter = array()) {
-    $filter = $this->getFilter($filter, array(
+  public function getChannels($query = array()) {
+    $query = $this->getQuery($query, array(
       'page_id' => 0,
       'page_size' => 25
     ));
     $endpoint = $this->type . '/' . $this->id . '/channels';
-    return $this->getIndex($endpoint, $filter, 'LimelightChannel');
+    return $this->getIndex($endpoint, $query, 'LimelightChannel');
   }
 
   /**
