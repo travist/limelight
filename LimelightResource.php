@@ -36,7 +36,6 @@ class LimelightResource extends restPHP_Resource {
    */
   protected function getFilteredObject($params = array()) {
     $params = parent::getFilteredObject($params);
-    $params['title'] = $this->title;
     return $params;
   }
 
