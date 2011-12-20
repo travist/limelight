@@ -50,25 +50,6 @@ function limelight_channel_found($title) {
 
 class LimelightChannelTest extends PHPUnit_Framework_TestCase {
 
-  function testGetChannel() {
-
-    // Get the list of channels.
-    $channels = LimelightChannel::index();
-
-    // Make sure we found some...
-    $this->assertTrue(!!$channels, 'Channel list is defined.');
-
-    // Iterate through all the channels.
-    foreach ($channels as $channel) {
-
-      // Make sure that the ID is defined.
-      $this->assertTrue(isset($channel->id) && $channel->id, 'ID is defined');
-
-      // Make sure that the title is set.
-      $this->assertTrue(isset($channel->title) && $channel->title, 'Title is defined.');
-    }
-  }
-
   function testCreateChannel() {
 
     // Create a new channel.
@@ -85,6 +66,25 @@ class LimelightChannelTest extends PHPUnit_Framework_TestCase {
 
     // Now check to make sure we can find the channel with this title.
     $this->assertTrue(limelight_channel_found($channel->title), "Create Channel success.");
+  }
+
+  function testChannelList() {
+
+    // Get the list of channels.
+    $channels = limelight_get_channels();
+
+    // Make sure we found some...
+    $this->assertTrue(!!$channels, 'List is found.');
+
+    // Iterate through all the channels.
+    foreach ($channels as $channel) {
+
+      // Make sure that the ID is defined.
+      $this->assertTrue(isset($channel->id) && $channel->id, 'ID is defined');
+
+      // Make sure that the title is set.
+      $this->assertTrue(isset($channel->title) && $channel->title, 'Title is defined.');
+    }
   }
 
   function testUpdateChannel() {

@@ -1,31 +1,91 @@
 <?php
+include_once 'LimelightChannelTest.php';
 require_once dirname(__FILE__) . '/../LimelightMedia.php';
+
+// Define our constants.
+define('LIMELIGHT_TEST_MEDIA', 'TESTMEDIA_DELETEME!!!');
+define('LIMELIGHT_UPDATE_MEDIA', 'TESTMEDIA_DELETEME_UPDATE!!!');
+define('LIMELIGHT_MEDIA_TAG', 'testing, one, two, three!');
+
+/**
+ * Returns an uncached list of media.
+ *
+ * @return type
+ */
+function limelight_get_media_index() {
+  return LimelightMedia::index(array('published'=>FALSE), array('server'=>array('request'=>array('cache'=>FALSE))));
+}
+
+/**
+ * Returns a media provided a title.
+ *
+ * @param type $title
+ * @return type
+ */
+function limelight_get_media($title) {
+  foreach (limelight_get_media_index() as $media) {
+    if ($media->title == $title) {
+      return $media;
+    }
+  }
+
+  return NULL;
+}
+
+/**
+ * Checks to see if a media is found.
+ *
+ * @param type $title
+ * @return boolean
+ */
+function limelight_media_found($title) {
+  $found = FALSE;
+  foreach (limelight_get_media_index() as $media) {
+    if ($media->title == $title) {
+      $found = TRUE;
+      break;
+    }
+  }
+  return $found;
+}
+
+
 class LimelightMediaTest extends PHPUnit_Framework_TestCase {
+
+  public function testCreateMedia() {
+
+    // Create a new media.
+    $media = new LimelightMedia(array('title' => LIMELIGHT_TEST_MEDIA));
+
+    // Now create it.
+    $media->set();
+
+    // Check to see if the id is now set.
+    $this->assertTrue(isset($media->id) && $media->id, 'ID is set.');
+
+    // Check to see if the title is correct.
+    $this->assertTrue(isset($media->title) && $media->title == LIMELIGHT_TEST_MEDIA, 'Title is set.');
+
+    // Now check to make sure we can find the media with this title.
+    $this->assertTrue(limelight_get_media_index($media->title), "Media Found.");
+  }
 
   // Test viewing a list of media.
   public function testMediaList() {
 
-    // Get a list of all published media.
-    $media_list = LimelightMedia::index();
+    // Get the list of media.
+    $media = limelight_get_media_index();
 
-    // Assert that it returned 25 items.
-    $this->assertTrue(!!$media_list, 'The media list is defined.');
-    foreach ($media_list as $item) {
-      $this->assertTrue(get_class($item) == 'LimelightMedia', 'Class is LimelightMedia');
+    // Make sure we found some...
+    $this->assertTrue(!!$media, 'List is found.');
+
+    // Iterate through all the media.
+    foreach ($media as $item) {
+
+      // Make sure that the ID is defined.
       $this->assertTrue(isset($item->id) && $item->id, 'ID is defined');
-      $this->assertTrue(isset($item->title) && $item->title, 'Title is defined.');
-    }
-  }
 
-  // Test viewing unpublished media.
-  public function testUnpublishedMediaList() {
-
-    // Create a new media object.
-    $media_list = LimelightMedia::index(array('published' => FALSE));
-    $this->assertTrue(!!$media_list, 'The media list is defined.');
-    $this->assertEquals(25, count($media_list));
-    foreach ($media_list as $item) {
-      $this->assertTrue(isset($item->id) && $item->id, 'ID is defined');
+      // Make sure that the title is set.
       $this->assertTrue(isset($item->title) && $item->title, 'Title is defined.');
     }
   }
@@ -33,16 +93,14 @@ class LimelightMediaTest extends PHPUnit_Framework_TestCase {
   // Test loading a single media item.
   public function testMediaLoad() {
 
-    // Get a list of all published media.
-    $media_list = LimelightMedia::index();
+    // Get a list of all media.
+    $media_list = limelight_get_media_index();
 
     // Get the ID of the first item.
     $id = $media_list[0]->id;
 
     // Now load that media item.
-    $media_node = new LimelightMedia(array(
-      'id' => $id
-    ));
+    $media_node = new LimelightMedia(array('id' => $id));
 
     // Now verify that they are the same...
     $this->assertEquals($media_node->title, $media_list[0]->title);
@@ -51,82 +109,88 @@ class LimelightMediaTest extends PHPUnit_Framework_TestCase {
   // Test getting the channels associated with a media.
   public function testGetChannels() {
 
-    // Get a list of all published media.
-    $media_list = LimelightMedia::index();
-    $media = $media_list[0];
+    // First add a channel and add this media to the the channel.
+    $channel = new LimelightChannel(array('title' => LIMELIGHT_TEST_CHANNEL));
+
+    // Now create it.
+    $channel->set();
+
+    // Get the test media.
+    $media = limelight_get_media(LIMELIGHT_TEST_MEDIA);
+
+    // Add the media to the channel.
+    $channel->addMedia($media);
 
     // Now get the channels for this media.
     $channels = $media->getChannels();
 
-    // Now iterate through the channels.
+    // Now iterate through the channels, and make sure we find the test channel.
     foreach ($channels as $item) {
-
       $this->assertTrue(isset($item->id) && $item->id, "ID is defined");
       $this->assertTrue(isset($item->title) && $item->title, "Title is defined");
+      $this->assertEquals($item->title, LIMELIGHT_TEST_CHANNEL);
     }
+
+    // Now delete the test channel.
+    $channel->delete();
   }
 
   // Test an upload of a media file.
   public function testMediaUpload() {
-    $this->media = new LimelightMedia(array(
-      'title' => 'TestMedia__DELETEME',
-      'media_file' => 'jellies.mp4'
-    ));
-    $this->media->set();
+
+    // Get the test media.
+    $media = limelight_get_media(LIMELIGHT_TEST_MEDIA);
+
+    // Now upload the media to that media.
+    $media->set(array('media_file' => 'jellies.mp4'));
 
     // If the upload passed, then it would set the values of the media.
-    $this->assertTrue($this->media->media_type == 'Video', 'Type is video');
-    $this->assertTrue($this->media->state == 'New', 'State is New');
-    $this->assertTrue(isset($this->media->id) && $this->media->id, 'ID is defined');
+    $this->assertTrue($media->media_type == 'Video', 'Type is video');
   }
-/** TO-DO: GET THIS WORKING!!!!
- * 
+
   // Test adding a tag.
-  public function testAddDeleteTag() {
-    $media_list = LimelightMedia::index(array('published' => FALSE, 'server' => array('request' => array('cache' => FALSE))));
-    $media = NULL;
-    foreach ($media_list as $item) {
-      if ($item->title == 'TestMedia__DELETEME') {
-        $media = $item;
-        break;
-      }
-    }
+  public function testAddTag() {
 
-    if ($media && $media->id) {
-      // Get a list of all published media.
-      $tag = 'testing_one_two_three';
-      $media->addTag($tag);
+    // Get the test media.
+    $media = limelight_get_media(LIMELIGHT_TEST_MEDIA);
 
-      // Now get the media separately, with server caching turned off...
-      $check = new LimelightMedia(array('id' => $media->id, 'server' => array('request' => array('cache' => FALSE))));
-      $this->assertTrue(in_array($tag, $check->tags), "Tag was set.");
-      $check->deleteTag($tag);
-      $check->get();
-      $this->assertTrue(!in_array($tag, $check->tags), 'Tag was deleted.');
-    }
+    // Add the tag.
+    $media->addTag(LIMELIGHT_MEDIA_TAG);
+
+    // Now reload it and check it...
+    $check = limelight_get_media(LIMELIGHT_TEST_MEDIA);
+
+    // Test to see if this tag was added.
+    $this->assertTrue(in_array(LIMELIGHT_MEDIA_TAG, $check->tags), "Tag was set.");
   }
 
+  // Test deleting a tag.
+  public function testDeleteTag() {
+
+    // Get the test media.
+    $media = limelight_get_media(LIMELIGHT_TEST_MEDIA);
+
+    // Delete the tag.
+    $media->deleteTag(LIMELIGHT_MEDIA_TAG);
+
+    // Now reload it and check it...
+    $check = limelight_get_media(LIMELIGHT_TEST_MEDIA);
+
+    // Test to see if this tag was added.
+    $this->assertTrue(!in_array(LIMELIGHT_MEDIA_TAG, $check->tags), "Tag was deleted.");
+  }
+
+  // Delete the media.
   public function testMediaDelete() {
-    $media_list = LimelightMedia::index(array('published' => FALSE, 'server' => array('request' => array('cache' => FALSE))));
-    $media = NULL;
-    foreach ($media_list as $item) {
-      if ($item->title == 'TestMedia__DELETEME') {
-        $media = $item;
-        break;
-      }
-    }
 
-    if ($media && $media->id) {
+    // Get the test media.
+    $media = limelight_get_media(LIMELIGHT_TEST_MEDIA);
 
-      // Delete the media...
-      $media->delete();
+    // Delete the media...
+    $media->delete();
 
-      // Check to make sure it is gone...
-      $check = new LimelightMedia(array('id' => $media->id, 'server' => array('request' => array('cache' => FALSE))));
-      $this->assertTrue(!$check->title, 'Media was deleted...');
-    }
+    // Make sure we cannot find the media.
+    $this->assertTrue(!limelight_media_found(LIMELIGHT_TEST_MEDIA), "Delete Media success.");
   }
- *
- */
 }
 ?>
