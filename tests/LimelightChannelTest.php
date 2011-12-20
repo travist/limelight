@@ -92,17 +92,22 @@ class LimelightChannelTest extends PHPUnit_Framework_TestCase {
     // Get the test channel.
     $channel = limelight_get_channel(LIMELIGHT_TEST_CHANNEL);
 
-    // Change the title to the updated name.
-    $channel->set(array('title' => LIMELIGHT_UPDATE_CHANNEL));
+    if ($channel) {
+      // Change the title to the updated name.
+      $channel->set(array('title' => LIMELIGHT_UPDATE_CHANNEL));
 
-    // Now make sure we can't find the old name.
-    $this->assertTrue(!limelight_channel_found(LIMELIGHT_TEST_CHANNEL), "Create update success.");
+      // Now make sure we can't find the old name.
+      $this->assertTrue(!limelight_channel_found(LIMELIGHT_TEST_CHANNEL), "Create update success.");
 
-    // Now make sure we CAN find the new name.
-    $this->assertTrue(limelight_channel_found(LIMELIGHT_UPDATE_CHANNEL), "Create update success.");
+      // Now make sure we CAN find the new name.
+      $this->assertTrue(limelight_channel_found(LIMELIGHT_UPDATE_CHANNEL), "Create update success.");
 
-    // Set the channel back to the test name.
-    $channel->set(array('title' => LIMELIGHT_TEST_CHANNEL));
+      // Set the channel back to the test name.
+      $channel->set(array('title' => LIMELIGHT_TEST_CHANNEL));
+    }
+    else {
+      $this->assertTrue(FALSE, "Test channel not found.");
+    }
   }
 
   function testAddMediaToChannel() {
@@ -110,34 +115,44 @@ class LimelightChannelTest extends PHPUnit_Framework_TestCase {
     // Get the test channel.
     $channel = limelight_get_channel(LIMELIGHT_TEST_CHANNEL);
 
-    // Now let's add some media to this channel.
-    $media = LimelightMedia::index();
-    $channel->addMedia($media[0]);
-    $channel->addMedia($media[1]);
+    if ($channel) {
+      // Now let's add some media to this channel.
+      $media = LimelightMedia::index();
+      $channel->addMedia($media[0]);
+      $channel->addMedia($media[1]);
 
-    // Now get the media for this channel, and check out if everything is there.
-    $channel_media = $channel->getMedia();
+      // Now get the media for this channel, and check out if everything is there.
+      $channel_media = $channel->getMedia();
 
-    // Make sure that there are two media in this channel.
-    $this->assertTrue(count($channel_media) == 2, 'Media in channel is correct.');
+      // Make sure that there are two media in this channel.
+      $this->assertTrue(count($channel_media) == 2, 'Media in channel is correct.');
 
-    // Make sure that the media in the channel equals the media that we added.
-    $this->assertEquals($channel_media[0].id, $media[0].id);
-    $this->assertEquals($channel_media[1].id, $media[1].id);
+      // Make sure that the media in the channel equals the media that we added.
+      $this->assertEquals($channel_media[0].id, $media[0].id);
+      $this->assertEquals($channel_media[1].id, $media[1].id);
+    }
+    else {
+      $this->assertTrue(FALSE, "Test channel not found.");
+    }
   }
 
   function testPublishChannel() {
     // Get the test channel.
     $channel = limelight_get_channel(LIMELIGHT_TEST_CHANNEL);
 
-    // Now publish this channel.
-    $channel->publish();
+    if ($channel) {
+      // Now publish this channel.
+      $channel->publish();
 
-    // Get the test channel.
-    $channel = limelight_get_channel(LIMELIGHT_TEST_CHANNEL);
+      // Get the test channel.
+      $channel = limelight_get_channel(LIMELIGHT_TEST_CHANNEL);
 
-    // Check to make sure the state is Published.
-    $this->assertEquals($channel->state, "Published");
+      // Check to make sure the state is Published.
+      $this->assertEquals($channel->state, "Published");
+    }
+    else {
+      $this->assertTrue(FALSE, "Test channel not found.");
+    }
   }
 
   function testDeleteChannel() {
@@ -145,11 +160,16 @@ class LimelightChannelTest extends PHPUnit_Framework_TestCase {
     // Get the test channel.
     $channel = limelight_get_channel(LIMELIGHT_TEST_CHANNEL);
 
-    // Now finally delete the test channel.
-    $channel->delete();
+    if ($channel) {
+      // Now finally delete the test channel.
+      $channel->delete();
 
-    // Make sure we cannot find the channel.
-    $this->assertTrue(!limelight_channel_found(LIMELIGHT_TEST_CHANNEL), "Delete Channel success.");
+      // Make sure we cannot find the channel.
+      $this->assertTrue(!limelight_channel_found(LIMELIGHT_TEST_CHANNEL), "Delete Channel success.");
+    }
+    else {
+      $this->assertTrue(FALSE, "Test channel not found.");
+    }
   }
 }
 ?>

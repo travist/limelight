@@ -67,7 +67,7 @@ class LimelightMediaTest extends PHPUnit_Framework_TestCase {
     $this->assertTrue(isset($media->title) && $media->title == LIMELIGHT_TEST_MEDIA, 'Title is set.');
 
     // Now check to make sure we can find the media with this title.
-    $this->assertTrue(limelight_get_media_index($media->title), "Media Found.");
+    $this->assertTrue(limelight_media_found($media->title), "Media Found.");
   }
 
   // Test viewing a list of media.
@@ -106,6 +106,30 @@ class LimelightMediaTest extends PHPUnit_Framework_TestCase {
     $this->assertEquals($media_node->title, $media_list[0]->title);
   }
 
+  // Test updating media.
+  public function testMediaUpdate() {
+
+    // Get the test media.
+    $media = limelight_get_media(LIMELIGHT_TEST_MEDIA);
+
+    if ($media) {
+      // Change the title.
+      $media->set(array('title' => LIMELIGHT_UPDATE_MEDIA));
+
+      // Now make sure we can't find the old name.
+      $this->assertTrue(!limelight_media_found(LIMELIGHT_TEST_MEDIA), "Create update success.");
+
+      // Now make sure we CAN find the new name.
+      $this->assertTrue(limelight_media_found(LIMELIGHT_UPDATE_MEDIA), "Create update success.");
+
+      // Set the media name back to the test name.
+      $media->set(array('title' => LIMELIGHT_TEST_MEDIA));
+    }
+    else {
+      $this->assertTrue(FALSE, "Test media not found.");
+    }
+  }
+
   // Test getting the channels associated with a media.
   public function testGetChannels() {
 
@@ -118,17 +142,24 @@ class LimelightMediaTest extends PHPUnit_Framework_TestCase {
     // Get the test media.
     $media = limelight_get_media(LIMELIGHT_TEST_MEDIA);
 
-    // Add the media to the channel.
-    $channel->addMedia($media);
+    // If the media exists.
+    if ($media) {
 
-    // Now get the channels for this media.
-    $channels = $media->getChannels();
+      // Add the media to the channel.
+      $channel->addMedia($media);
 
-    // Now iterate through the channels, and make sure we find the test channel.
-    foreach ($channels as $item) {
-      $this->assertTrue(isset($item->id) && $item->id, "ID is defined");
-      $this->assertTrue(isset($item->title) && $item->title, "Title is defined");
-      $this->assertEquals($item->title, LIMELIGHT_TEST_CHANNEL);
+      // Now get the channels for this media.
+      $channels = $media->getChannels();
+
+      // Now iterate through the channels, and make sure we find the test channel.
+      foreach ($channels as $item) {
+        $this->assertTrue(isset($item->id) && $item->id, "ID is defined");
+        $this->assertTrue(isset($item->title) && $item->title, "Title is defined");
+        $this->assertEquals($item->title, LIMELIGHT_TEST_CHANNEL);
+      }
+    }
+    else {
+      $this->assertTrue(FALSE, "Test media not found.");
     }
 
     // Now delete the test channel.
@@ -141,11 +172,16 @@ class LimelightMediaTest extends PHPUnit_Framework_TestCase {
     // Get the test media.
     $media = limelight_get_media(LIMELIGHT_TEST_MEDIA);
 
-    // Now upload the media to that media.
-    $media->set(array('media_file' => 'jellies.mp4'));
+    if ($media) {
+      // Now upload the media to that media.
+      $media->set(array('media_file' => 'jellies.mp4'));
 
-    // If the upload passed, then it would set the values of the media.
-    $this->assertTrue($media->media_type == 'Video', 'Type is video');
+      // If the upload passed, then it would set the values of the media.
+      $this->assertTrue($media->media_type == 'Video', 'Type is video');
+    }
+    else {
+      $this->assertTrue(FALSE, "Test media not found.");
+    }
   }
 
   // Test adding a tag.
@@ -154,14 +190,19 @@ class LimelightMediaTest extends PHPUnit_Framework_TestCase {
     // Get the test media.
     $media = limelight_get_media(LIMELIGHT_TEST_MEDIA);
 
-    // Add the tag.
-    $media->addTag(LIMELIGHT_MEDIA_TAG);
+    if ($media) {
+      // Add the tag.
+      $media->addTag(LIMELIGHT_MEDIA_TAG);
 
-    // Now reload it and check it...
-    $check = limelight_get_media(LIMELIGHT_TEST_MEDIA);
+      // Now reload it and check it...
+      $check = limelight_get_media(LIMELIGHT_TEST_MEDIA);
 
-    // Test to see if this tag was added.
-    $this->assertTrue(in_array(LIMELIGHT_MEDIA_TAG, $check->tags), "Tag was set.");
+      // Test to see if this tag was added.
+      $this->assertTrue(in_array(LIMELIGHT_MEDIA_TAG, $check->tags), "Tag was set.");
+    }
+    else {
+      $this->assertTrue(FALSE, "Test media not found.");
+    }
   }
 
   // Test deleting a tag.
@@ -170,14 +211,19 @@ class LimelightMediaTest extends PHPUnit_Framework_TestCase {
     // Get the test media.
     $media = limelight_get_media(LIMELIGHT_TEST_MEDIA);
 
-    // Delete the tag.
-    $media->deleteTag(LIMELIGHT_MEDIA_TAG);
+    if ($media) {
+      // Delete the tag.
+      $media->deleteTag(LIMELIGHT_MEDIA_TAG);
 
-    // Now reload it and check it...
-    $check = limelight_get_media(LIMELIGHT_TEST_MEDIA);
+      // Now reload it and check it...
+      $check = limelight_get_media(LIMELIGHT_TEST_MEDIA);
 
-    // Test to see if this tag was added.
-    $this->assertTrue(!in_array(LIMELIGHT_MEDIA_TAG, $check->tags), "Tag was deleted.");
+      // Test to see if this tag was added.
+      $this->assertTrue(!in_array(LIMELIGHT_MEDIA_TAG, $check->tags), "Tag was deleted.");
+    }
+    else {
+      $this->assertTrue(FALSE, "Test media not found.");
+    }
   }
 
   // Delete the media.
@@ -186,11 +232,16 @@ class LimelightMediaTest extends PHPUnit_Framework_TestCase {
     // Get the test media.
     $media = limelight_get_media(LIMELIGHT_TEST_MEDIA);
 
-    // Delete the media...
-    $media->delete();
+    if ($media) {
+      // Delete the media...
+      $media->delete();
 
-    // Make sure we cannot find the media.
-    $this->assertTrue(!limelight_media_found(LIMELIGHT_TEST_MEDIA), "Delete Media success.");
+      // Make sure we cannot find the media.
+      $this->assertTrue(!limelight_media_found(LIMELIGHT_TEST_MEDIA), "Delete Media success.");
+    }
+    else {
+      $this->assertTrue(FALSE, "Test media not found.");
+    }
   }
 }
 ?>
