@@ -64,12 +64,6 @@ class LimelightChannel extends LimelightResource {
     return 'channels';
   }
 
-  protected function endpoint($type) {
-    if ($type = 'index') {
-
-    }
-  }
-
   /**
    * Returns all the media associated with this channel.
    */
@@ -143,12 +137,7 @@ class LimelightChannel extends LimelightResource {
    * Sets the publish state of this channel.
    */
   public function publish($state = TRUE) {
-    $this->set(array(
-      'state' => ($state ? 'Published' : 'NotPublished'),
-      'email_enabled' => TRUE,
-      'rss_enabled' => TRUE,
-      'search_inside_enabled' => TRUE
-    ));
+    $this->set(array('state' => ($state ? 'Published' : 'NotPublished')));
   }
 
   /**

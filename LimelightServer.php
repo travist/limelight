@@ -9,10 +9,18 @@ require_once 'LimelightConfig.php';
  */
 class LimelightServer extends restPHP_Server {
 
+  public $limelight_params = array();
+
   /**
    * Constructor
    */
   function __construct($config = array()) {
+
+    // Make sure the request adaptor is Curl.
+    if (!isset($config['request'])) {
+      $config['request'] = array();
+    }
+    $config['request']['adapter'] = 'HTTP_Request2_Adapter_Curl';
 
     // Call the constructor.
     parent::__construct($config);
@@ -24,6 +32,31 @@ class LimelightServer extends restPHP_Server {
     $this->config['base_url'] .= ('/' . $this->config['organization_id']);
   }
 
+  protected function getResponse($request) {
+
+    /**
+     * Limelight has a horrible bug where they ignore all PUT methods because,
+     * they expect the command to be CURLOPT_CUSTOMREQUEST, whereas PEAR's
+     * HTTP_Request2 uses CURLOPT_UPLOAD.  They seem to be ignoring this type
+     * which is causing all the PUT commands to be ignored when using the
+     * HTTP_Request2 libraries.  We will do this hack for the time being until
+     * they fix it.
+     */
+    if ($request->getMethod() == HTTP_Request2::METHOD_PUT) {
+      $session = curl_init($request->getUrl()->getUrl());
+      curl_setopt($session, CURLOPT_CUSTOMREQUEST, "PUT");
+      curl_setopt($session, CURLOPT_HEADER, false);
+      curl_setopt($session, CURLOPT_POSTFIELDS, $this->limelight_params);
+      curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
+      $response = curl_exec($session);
+      curl_close($session);
+      return $response;
+    }
+    else {
+      return parent::getResponse($request);
+    }
+  }
+
   /**
    * Add params to the request.
    *
@@ -31,6 +64,9 @@ class LimelightServer extends restPHP_Server {
    * @param type $params
    */
   protected function addParams(&$request, $params) {
+
+    // Save these for later.
+    $this->limelight_params = $params;
 
     // Iterate through the params and add them to the request.
     if ($params) {
