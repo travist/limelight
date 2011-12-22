@@ -5,6 +5,8 @@ require_once '../LimelightMedia.php';
 // Define our constants.
 define('LIMELIGHT_TEST_CHANNEL', 'TESTCHANNEL_DELETEME!!!');
 define('LIMELIGHT_UPDATE_CHANNEL', 'TESTCHANNEL_DELETEME_UPDATE!!!');
+define('LIMELIGHT_TEST_MEDIA1', 'TESTMEDIA_DELETEME_1!!!');
+define('LIMELIGHT_TEST_MEDIA2', 'TESTMEDIA_DELETEME_2!!!');
 
 /**
  * Returns an uncached list of channels.
@@ -96,14 +98,14 @@ class LimelightChannelTest extends PHPUnit_Framework_TestCase {
       // Change the title to the updated name.
       $channel->set(array('title' => LIMELIGHT_UPDATE_CHANNEL));
 
-      // Now make sure we can't find the old name.
-      $this->assertTrue(!limelight_channel_found(LIMELIGHT_TEST_CHANNEL), "Create update success.");
-
-      // Now make sure we CAN find the new name.
-      $this->assertTrue(limelight_channel_found(LIMELIGHT_UPDATE_CHANNEL), "Create update success.");
+      // Make sure that the title was changed.
+      $this->assertEquals($channel->title, LIMELIGHT_UPDATE_CHANNEL);
 
       // Set the channel back to the test name.
       $channel->set(array('title' => LIMELIGHT_TEST_CHANNEL));
+
+      // Make sure that the title was changed back.
+      $this->assertEquals($channel->title, LIMELIGHT_TEST_CHANNEL);
     }
     else {
       $this->assertTrue(FALSE, "Test channel not found.");
@@ -116,10 +118,18 @@ class LimelightChannelTest extends PHPUnit_Framework_TestCase {
     $channel = limelight_get_channel(LIMELIGHT_TEST_CHANNEL);
 
     if ($channel) {
+
+      // Create new media.
+      $media1 = new LimelightMedia(array('title' => LIMELIGHT_TEST_MEDIA1));
+      $media1->set();
+
+      // Create new media.
+      $media2 = new LimelightMedia(array('title' => LIMELIGHT_TEST_MEDIA2));
+      $media2->set();
+
       // Now let's add some media to this channel.
-      $media = LimelightMedia::index();
-      $channel->addMedia($media[0]);
-      $channel->addMedia($media[1]);
+      $channel->addMedia($media1);
+      $channel->addMedia($media2);
 
       // Now get the media for this channel, and check out if everything is there.
       $channel_media = $channel->getMedia();
@@ -128,8 +138,8 @@ class LimelightChannelTest extends PHPUnit_Framework_TestCase {
       $this->assertTrue(count($channel_media) == 2, 'Media in channel is correct.');
 
       // Make sure that the media in the channel equals the media that we added.
-      $this->assertEquals($channel_media[0].id, $media[0].id);
-      $this->assertEquals($channel_media[1].id, $media[1].id);
+      $this->assertEquals($channel_media[0].id, $media1.id);
+      $this->assertEquals($channel_media[1].id, $media2.id);
     }
     else {
       $this->assertTrue(FALSE, "Test channel not found.");

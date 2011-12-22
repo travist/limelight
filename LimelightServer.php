@@ -35,7 +35,7 @@ class LimelightServer extends restPHP_Server {
   protected function getResponse($request) {
 
     /**
-     * Limelight has a horrible bug where they ignore all PUT methods because,
+     * Limelight has bug where they ignore all PUT methods because,
      * they expect the command to be CURLOPT_CUSTOMREQUEST, whereas PEAR's
      * HTTP_Request2 uses CURLOPT_UPLOAD.  They seem to be ignoring this type
      * which is causing all the PUT commands to be ignored when using the
