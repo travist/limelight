@@ -17,6 +17,9 @@ class restPHP_Resource {
   /** Keeps track of differences between local and server data. */
   public $diff = array();
 
+  /** Keep track of the response from the server. */
+  public $response = '';
+
   /** Constructor */
   function __construct($params = null, $sync = TRUE) {
 
@@ -159,13 +162,18 @@ class restPHP_Resource {
    * Gets the properties of this resource.
    */
   public function get() {
+
+    // Only get if there is a type and an id.
     if ($this->type && $this->id) {
-      $params = $this->server->get($this->endpoint('get'), NULL, FALSE);
-      $error = isset($params->errors) && $params->errors;
-      if ($params && !$error) {
+
+      // Get the response from the server.
+      $this->response = $this->server->get($this->endpoint('get'), NULL, FALSE);
+
+      // Check to make sure the response is valid.
+      if ($this->response && !$this->getLastErrors()) {
 
         // If this is a valid response and there is an ID, update.
-        $this->update($params);
+        $this->update($this->response);
       }
       else {
 
@@ -173,6 +181,8 @@ class restPHP_Resource {
         $this->id = NULL;
       }
     }
+
+    // Allow chaining.
     return $this;
   }
 
@@ -210,6 +220,20 @@ class restPHP_Resource {
   }
 
   /**
+   * Returns the errors (if any) of the last request made.
+   *
+   * @return array An array of errors that occured.  FALSE if no errors.
+   */
+  public function getLastErrors() {
+    if (isset($response->errors) && $response->errors) {
+      return $response->errors;
+    }
+    else {
+      return FALSE;
+    }
+  }
+
+  /**
    * Generic function to set this complete object or properties within this object.
    *
    * Examples:
@@ -231,15 +255,22 @@ class restPHP_Resource {
       // Only update if the filtered parameters returns something to update.
       if ($params = $this->getFilteredObject($params)) {
 
-        // Get the method and then send the request.
+        // If the resource has an ID, then we PUT otherwise POST.
         $method = $this->id ? 'put' : 'post';
-        $response = $this->server->{$method}($this->endpoint('set'), $params);
-        $error = isset($response->errors) && $response->errors;
-        if (!$error) {
-          $this->update($response);
+
+        // Make the call to the server.
+        $this->response = $this->server->{$method}($this->endpoint('set'), $params);
+
+        // Check to make sure the response is valid.
+        if ($this->response && !$this->getLastErrors()) {
+
+          // Update the resource if the response is valid.
+          $this->update($this->response);
         }
       }
     }
+
+    // Allow chaining.
     return $this;
   }
 
@@ -247,7 +278,11 @@ class restPHP_Resource {
    * Delete's an resource.
    */
   public function delete() {
+
+    // Check to make sure we have a type and an id.
     if ($this->type && $this->id) {
+
+      // Make a delete call to the server.
       $this->server->delete($this->endpoint('delete'));
     }
     return $this;
