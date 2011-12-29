@@ -88,7 +88,8 @@ class LimelightChannel extends LimelightResource {
     if ($this->id && $media && $media->id) {
       $this->server->setConfig('authenticate', TRUE);
       $endpoint = $this->type . '/' . $this->id . '/media/' . $media->id;
-      $ret = $this->server->call($endpoint, $method, NULL, NULL, FALSE);
+      $this->response = $this->server->call($endpoint, $method, NULL, NULL, FALSE);
+      $ret = !$this->getLastErrors();
       $this->server->setConfig('authenticate', FALSE);
     }
     return $ret;
@@ -120,8 +121,11 @@ class LimelightChannel extends LimelightResource {
 
     // Only add if the media doesn't already exist in the channel.
     if (!$found) {
-      $this->setMedia($media, HTTP_Request2::METHOD_PUT);
+      return $this->setMedia($media, HTTP_Request2::METHOD_PUT);
     }
+
+    // Return FALSE that no media was added.
+    return FALSE;
   }
 
   /**
@@ -130,14 +134,15 @@ class LimelightChannel extends LimelightResource {
    * @param type $media
    */
   public function removeMedia($media) {
-    $this->setMedia($media, HTTP_Request2::METHOD_DELETE);
+    return $this->setMedia($media, HTTP_Request2::METHOD_DELETE);
   }
 
   /**
    * Sets the publish state of this channel.
    */
   public function publish($state = TRUE) {
-    $this->set(array('state' => ($state ? 'Published' : 'NotPublished')));
+    $this->response = $this->set(array('state' => ($state ? 'Published' : 'NotPublished')));
+    return !$this->getLastErrors();
   }
 
   /**

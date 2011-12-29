@@ -102,7 +102,7 @@ class LimelightMedia extends LimelightResource {
 
   /**
    * All index queries for media require authentication.
-   * 
+   *
    * @param type $query
    * @return type
    */
@@ -156,7 +156,8 @@ class LimelightMedia extends LimelightResource {
     $ret = FALSE;
     $this->server->setConfig('authenticate', TRUE);
     $endpoint = $this->type . '/' . $this->id . '/properties/tags/' . $tag;
-    $ret = $this->server->call($endpoint, $method, NULL, NULL, FALSE);
+    $this->response = $this->server->call($endpoint, $method, NULL, NULL, FALSE);
+    $ret = !$this->getLastErrors();
     $this->server->setConfig('authenticate', FALSE);
     return $ret;
   }
