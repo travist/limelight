@@ -225,8 +225,8 @@ class restPHP_Resource {
    * @return array An array of errors that occured.  FALSE if no errors.
    */
   public function getLastErrors() {
-    if (isset($response->errors) && $response->errors) {
-      return $response->errors;
+    if (isset($this->response->errors) && $this->response->errors) {
+      return $this->response->errors;
     }
     else {
       return FALSE;
