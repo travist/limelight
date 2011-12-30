@@ -17,9 +17,6 @@ class restPHP_Resource {
   /** Keeps track of differences between local and server data. */
   public $diff = array();
 
-  /** Keep track of the response from the server. */
-  public $response = '';
-
   /** Constructor */
   function __construct($params = null, $sync = TRUE) {
 
@@ -106,7 +103,7 @@ class restPHP_Resource {
   protected function getIndex($endpoint, $query, $className) {
 
     // Get the resources from the server.
-    if ($resources = $this->server->get($endpoint, $query)) {
+    if ($resources = $this->server->get($endpoint, $query)->response()) {
 
       // Now return the parsed resources.
       return $this->parse($resources, $className);
@@ -167,17 +164,10 @@ class restPHP_Resource {
     if ($this->type && $this->id) {
 
       // Get the response from the server.
-      $this->response = $this->server->get($this->endpoint('get'), NULL, FALSE);
-
-      // Check to make sure the response is valid.
-      if ($this->response && !$this->getLastErrors()) {
-
-        // If this is a valid response and there is an ID, update.
-        $this->update($this->response);
+      if ($resp = $this->server->get($this->endpoint('get'), NULL, FALSE)->response()) {
+        $this->update($resp);
       }
       else {
-
-        // Set the ID to NULL so that set will create new...
         $this->id = NULL;
       }
     }
@@ -220,20 +210,6 @@ class restPHP_Resource {
   }
 
   /**
-   * Returns the errors (if any) of the last request made.
-   *
-   * @return array An array of errors that occured.  FALSE if no errors.
-   */
-  public function getLastErrors() {
-    if (isset($this->response->errors) && $this->response->errors) {
-      return $this->response->errors;
-    }
-    else {
-      return FALSE;
-    }
-  }
-
-  /**
    * Generic function to set this complete object or properties within this object.
    *
    * Examples:
@@ -259,13 +235,8 @@ class restPHP_Resource {
         $method = $this->id ? 'put' : 'post';
 
         // Make the call to the server.
-        $this->response = $this->server->{$method}($this->endpoint('set'), $params);
-
-        // Check to make sure the response is valid.
-        if ($this->response && !$this->getLastErrors()) {
-
-          // Update the resource if the response is valid.
-          $this->update($this->response);
+        if ($resp = $this->server->{$method}($this->endpoint('set'), $params)->response()) {
+          $this->update($resp);
         }
       }
     }

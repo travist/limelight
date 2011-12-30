@@ -13,6 +13,12 @@ class restPHP_Server {
   // The configuration for this API.
   protected $config = array();
 
+  /** The current request. */
+  protected $request = null;
+
+  /** The current response. */
+  protected $response = '';
+
   /** Constructor */
   function __construct($config = array()) {
 
@@ -22,6 +28,20 @@ class restPHP_Server {
       'format' => 'json',
       'request_class' => 'HTTP_Request2'
     ));
+  }
+
+  /**
+   * Public accessor to request.
+   */
+  public function request() {
+    return $this->request;
+  }
+
+  /**
+   * Public accessor to the response.
+   */
+  public function response() {
+    return $this->response;
   }
 
   /**
@@ -37,10 +57,11 @@ class restPHP_Server {
   /**
    * Returns the request object.
    */
-  protected function getRequest($url, $method) {
+  protected function newRequest($url, $method) {
     $request_class = $this->config['request_class'];
     $config = isset($this->config['request']) ? $this->config['request'] : array();
-    return new $request_class($url, $method, $config);
+    $this->request = new $request_class($url, $method, $config);
+    return $this;
   }
 
   /**
@@ -49,12 +70,12 @@ class restPHP_Server {
    * @param type $request
    * @param type $params
    */
-  protected function addParams(&$request, $params) {
+  protected function addParams($params) {
 
     // Iterate through the params and add them to the request.
     if ($params) {
       foreach ($params as $key => $value) {
-        $request->addPostParameter($key, $value);
+        $this->request->addPostParameter($key, $value);
       }
     }
 
@@ -67,12 +88,12 @@ class restPHP_Server {
    * @param type $request
    * @param type $query
    */
-  protected function addQuery(&$request, $query) {
+  protected function addQuery($query) {
 
     // Iterate through our query and add them to the request url.
     if ($query) {
       foreach ($query as $key => $value) {
-        $request->getUrl()->setQueryVariable($key, $value);
+        $this->request->getUrl()->setQueryVariable($key, $value);
       }
     }
 
@@ -82,17 +103,8 @@ class restPHP_Server {
   /**
    * Perform an authentication on this request.
    */
-  protected function authenticate(&$request) {
+  protected function authenticate() {
     return $this;
-  }
-
-  /**
-   * Get a response from a request.
-   *
-   * @param type $request
-   */
-  protected function getResponse($request) {
-    return $request->send()->getBody();
   }
 
   /**
@@ -101,19 +113,53 @@ class restPHP_Server {
    * @param type $response
    * @return type
    */
-  protected function decode($response) {
+  protected function decode() {
 
     // Switch based on the format.
     switch ($this->config['format']) {
 
       case 'json':
-        return json_decode($response);
+        $this->response = json_decode($this->response);
         break;
 
       default:
         // TO-DO: IMPLEMENT OTHER FORMATS!
         break;
     }
+
+    return $this;
+  }
+
+  /**
+   * Send the request and set the response.
+   */
+  protected function send() {
+    $this->response = $this->request->send()->getBody();
+    return $this;
+  }
+
+  /**
+   * Called to validate the response of the request.
+   */
+  protected function validate() {
+    if (!$this->response || $this->response->errors) {
+      if (method_exists($this->request, 'onError')) {
+        $errors = isset($this->response) ? $this->response->errors : array();
+        $this->request->onError($errors);
+      }
+    }
+
+    return $this;
+  }
+
+  /**
+   * Returns errors, if any.
+   */
+  public function errors() {
+    if (isset($this->response->errors) && $this->response->errors) {
+      return $this->response->errors;
+    }
+    return array();
   }
 
   /**
@@ -129,14 +175,17 @@ class restPHP_Server {
     $format = $has_format ? ('.' . $this->config['format']) : '';
     $url = $this->config['base_url'] . '/' . $endpoint . $format;
 
-    // Create the request object.
-    $request = $this->getRequest($url, $method);
+    // Create a new request.
+    $this->newRequest($url, $method)
+      ->addParams($params)            /** Add Parameters. */
+      ->addQuery($query)              /** Add Query */
+      ->authenticate()                /** Authenticate the request */
+      ->send()                        /** Send the request. */
+      ->decode()                      /** Decode the response. */
+      ->validate();                   /** Validate the response. */
 
-    // Add parameters, add the query, and authenticate.
-    $this->addParams($request, $params)->addQuery($request, $query)->authenticate($request);
-
-    // Return the decoded response.
-    return $this->decode($this->getResponse($request));
+    // Return the this pointer.
+    return $this;
   }
 
   /**

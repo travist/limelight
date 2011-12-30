@@ -47,17 +47,15 @@ class LimelightConfig {
    * @global type $limelight_config
    * @return type
    */
-  public static function getConfig() {
+  public static function getConfig($defaults = array()) {
     global $limelight_config;
-
-    // If there is a global limelight_config variable defined, us it.
     if ($limelight_config) {
-      $defaults = self::$config;
-      return array_merge($defaults, $limelight_config);
+      return array_merge(self::$config, array_filter($limelight_config));
+    }
+    else if ($defaults) {
+      return array_merge(self::$config, array_filter($defaults));
     }
     else {
-
-      // Return the static configuration.
       return self::$config;
     }
   }

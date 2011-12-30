@@ -53,15 +53,19 @@ class HTTP_FileCachedRequest extends HTTP_CachedRequest {
   }
 
   /**
+   * Clears the current cache for this name.
+   */
+  public function cache_clear() {
+    if ($this->cache_exists) {
+      unlink($this->cache_path);
+    }
+  }
+
+  /**
    * Cache the response.
    */
   public function cache_response($body) {
     $ret = FALSE;
-
-    // Delete the file, and create a new one with the contents of this response.
-    if ($this->cache_exists) {
-      unlink($this->cache_path);
-    }
     if ($fp = fopen($this->cache_path,"w")) {
       $ret = fwrite($fp, $body);
       fclose($fp);

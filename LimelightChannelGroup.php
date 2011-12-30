@@ -50,7 +50,7 @@ class LimelightChannelGroup extends LimelightResource {
 
     if ($this->type && $this->id && $channel_id) {
       $endpoint = $this->type . '/' . $this->id . '/channels/' . $channel_id;
-      return $this->server->delete($endpoint);
+      return !$this->server->delete($endpoint)->errors();
     }
     else {
       return FALSE;

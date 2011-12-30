@@ -17,8 +17,10 @@ class HTTP_CachedRequest extends HTTP_Request2 {
 
     // Add the configuration for this class to the configuration. Default the timeout to 1hr.
     $this->config = array_merge($this->config, array(
-      'cache' => TRUE,
-      'cache_timeout' => isset($config['cache_timeout']) ? $config['cache_timeout'] : 3600
+      'cache' => TRUE,        /** If we should cache. */
+      'force_cache' => FALSE, /** If we should force the cache. */
+      'cache_seed' => '',     /** A seed to generate the cache name. */
+      'cache_timeout' => 3600 /** The amount of time to wait to invalidate the cache. */
     ));
 
     // Call the parent constructor.
@@ -39,7 +41,7 @@ class HTTP_CachedRequest extends HTTP_Request2 {
    * Return if we should cache.
    */
   public function should_cache() {
-    return ($this->method == HTTP_Request2::METHOD_GET) && $this->config['cache'];
+    return (($this->method == HTTP_Request2::METHOD_GET) && $this->config['cache']) || $this->config['force_cache'];
   }
 
   /**
@@ -59,6 +61,21 @@ class HTTP_CachedRequest extends HTTP_Request2 {
   }
 
   /**
+   * Called to clear the cache for this cache_name.
+   */
+  public function cache_clear() {
+    unset($this->static_cache[$this->cache_name]);
+  }
+
+  /**
+   * Called when an error occurs.
+   */
+  public function onError() {
+    // We need to clear the cache if the last request was an error.
+    $this->cache_clear();
+  }
+
+  /**
    * Returns the cache.
    */
   public function get_cache() {
@@ -68,8 +85,9 @@ class HTTP_CachedRequest extends HTTP_Request2 {
   // Override the send function to only send if the cache exists and is valid.
   public function send() {
 
-    // Set the cache name to the md5 of the URL.
-    $this->set_cache_name(md5($this->url->getURL()));
+    // Set the cache name to the md5 of the URL + cache_token.
+    $seed = $this->url->getURL() . $this->config['cache_seed'];
+    $this->set_cache_name(md5($seed));
 
     // Only send if we shouldn't cache or if the cache is invalid.
     $response = null;

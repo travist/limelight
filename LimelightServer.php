@@ -32,7 +32,7 @@ class LimelightServer extends restPHP_Server {
     $this->config['base_url'] .= ('/' . $this->config['organization_id']);
   }
 
-  protected function getResponse($request) {
+  protected function send() {
 
     /**
      * Limelight has bug where they ignore all PUT methods because,
@@ -42,28 +42,27 @@ class LimelightServer extends restPHP_Server {
      * HTTP_Request2 libraries.  We will do this hack for the time being until
      * they fix it.
      */
-    if ($request->getMethod() == HTTP_Request2::METHOD_PUT) {
-      $session = curl_init($request->getUrl()->getUrl());
+    if ($this->request->getMethod() == HTTP_Request2::METHOD_PUT) {
+      $session = curl_init($this->request->getUrl()->getUrl());
       curl_setopt($session, CURLOPT_CUSTOMREQUEST, "PUT");
       curl_setopt($session, CURLOPT_HEADER, false);
       curl_setopt($session, CURLOPT_POSTFIELDS, $this->limelight_params);
       curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
-      $response = curl_exec($session);
+      $this->response = curl_exec($session);
       curl_close($session);
-      return $response;
+      return $this;
     }
     else {
-      return parent::getResponse($request);
+      return parent::send();
     }
   }
 
   /**
    * Add params to the request.
    *
-   * @param type $request
    * @param type $params
    */
-  protected function addParams(&$request, $params) {
+  protected function addParams($params) {
 
     // Save these for later.
     $this->limelight_params = $params;
@@ -72,10 +71,10 @@ class LimelightServer extends restPHP_Server {
     if ($params) {
       foreach ($params as $key => $value) {
         if ($key == 'media_file') {
-          $request->addUpload($key, $value);
+          $this->request->addUpload($key, $value);
         }
         else {
-          $request->addPostParameter($key, $value);
+          $this->request->addPostParameter($key, $value);
         }
       }
     }
@@ -86,22 +85,22 @@ class LimelightServer extends restPHP_Server {
   /**
    * Perform an authentication on this request.
    */
-  protected function authenticate(&$request) {
+  protected function authenticate() {
 
     // Only authenticate under certain conditions.
     if ($this->config['authenticate'] && $this->config['access_key'] && $this->config['secret']) {
-      $parsed_url = parse_url($request->getUrl()->getUrl());
-      $str_to_sign = strtolower($request->getMethod() . '|' . $parsed_url['host'] . '|' . $parsed_url['path']) . '|';
+      $parsed_url = parse_url($this->request->getUrl()->getUrl());
+      $str_to_sign = strtolower($this->request->getMethod() . '|' . $parsed_url['host'] . '|' . $parsed_url['path']) . '|';
 
       // Get the query variables, and make sure the required ones are set for authentication.
-      $params = $request->getUrl()->getQueryVariables();
+      $params = $this->request->getUrl()->getQueryVariables();
       if (!isset($params['access_key'])) {
         $params['access_key'] = $this->config['access_key'];
-        $request->getUrl()->setQueryVariable('access_key', $params['access_key']);
+        $this->request->getUrl()->setQueryVariable('access_key', $params['access_key']);
       }
       if (!isset($params['expires'])) {
         $params['expires'] = time() + 300;
-        $request->getUrl()->setQueryVariable('expires', $params['expires']);
+        $this->request->getUrl()->setQueryVariable('expires', $params['expires']);
       }
 
       // Sort them in alphabetical order.
@@ -116,7 +115,7 @@ class LimelightServer extends restPHP_Server {
       // Remove the last & from the path.
       $str_to_sign = rtrim($str_to_sign,'&');
       $signature = base64_encode(hash_hmac('sha256', $str_to_sign, $this->config['secret'], true));
-      $request->getUrl()->setQueryVariable('signature', $signature);
+      $this->request->getUrl()->setQueryVariable('signature', $signature);
     }
 
     return $this;

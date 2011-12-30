@@ -88,8 +88,7 @@ class LimelightChannel extends LimelightResource {
     if ($this->id && $media && $media->id) {
       $this->server->setConfig('authenticate', TRUE);
       $endpoint = $this->type . '/' . $this->id . '/media/' . $media->id;
-      $this->response = $this->server->call($endpoint, $method, NULL, NULL, FALSE);
-      $ret = !$this->getLastErrors();
+      $ret = !$this->server->call($endpoint, $method, NULL, NULL, FALSE)->errors();
       $this->server->setConfig('authenticate', FALSE);
     }
     return $ret;

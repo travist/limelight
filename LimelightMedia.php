@@ -4,6 +4,12 @@
 require_once 'LimelightResource.php';
 require_once 'LimelightChannel.php';
 
+// Define the media qualities.
+define('LIMELIGHT_QUALITY_LOW', 'low');
+define('LIMELIGHT_QUALITY_MEDIUM', 'medium');
+define('LIMELIGHT_QUALITY_HIGH', 'high');
+define('LIMELIGHT_QUALITY_HD', 'hd');
+
 class LimelightMedia extends LimelightResource {
 
   /** The media file. */
@@ -128,6 +134,40 @@ class LimelightMedia extends LimelightResource {
   }
 
   /**
+   * Returns the download URL for this media.
+   */
+  public function url($quality = LIMELIGHT_QUALITY_HIGH) {
+    $url = '';
+    if ($this->type && $this->id) {
+
+      // Set the server configurations to cache the request, as well
+      // as authenticate the request.
+      $this->server->setConfig('authenticate', TRUE);
+      $this->server->setConfig('request', array(
+        'force_cache' => TRUE,
+        'cache_seed' => $quality,
+        'cache_timeout' => 900, /* 15 minutes */
+      ));
+
+      // Get the endpoint, and make the request.
+      $endpoint = $this->type . '/' . $this->id . '/download_url';
+      $params = array('quality' => $quality);
+      if (!$this->server->call($endpoint, HTTP_Request2::METHOD_POST, $params, NULL, TRUE)->errors()) {
+        $url = $this->server->response();
+      }
+
+      // Reset the server configurations.
+      $this->server->setConfig('authenticate', FALSE);
+      $this->server->setConfig('request', array(
+        'force_cache' => FALSE,
+        'cache_seed' => '',
+        'cache_timeout' => 3600,
+      ));
+    }
+    return $url;
+  }
+
+  /**
    * Returns all the channels that this media belongs too.
    */
   public function getChannels($query = array()) {
@@ -156,8 +196,7 @@ class LimelightMedia extends LimelightResource {
     $ret = FALSE;
     $this->server->setConfig('authenticate', TRUE);
     $endpoint = $this->type . '/' . $this->id . '/properties/tags/' . $tag;
-    $this->response = $this->server->call($endpoint, $method, NULL, NULL, FALSE);
-    $ret = !$this->getLastErrors();
+    $ret = !$this->server->call($endpoint, $method, NULL, NULL, FALSE)->errors();
     $this->server->setConfig('authenticate', FALSE);
     return $ret;
   }

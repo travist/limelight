@@ -54,6 +54,7 @@ class HTTP_CachedResponse {
     if (!$response && $this->response) {
       $response = $this->response->getBody();
       if ($response && $this->request->should_cache()) {
+        $this->request->cache_clear();
         $this->request->cache_response($response);
       }
     }
