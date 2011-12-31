@@ -98,12 +98,28 @@ class restPHP_Resource {
   }
 
   /**
+   * Function to get the response from the server.
+   */
+  protected function getResponse() {
+
+    // Return the response only if there were no errors and if the response exists.
+    if (($resp = $this->server->response()) && !$this->server->errors()) {
+      return $resp;
+    }
+
+    return '';
+  }
+
+  /**
    * Returns the list of resources.
    */
   protected function getIndex($endpoint, $query, $className) {
 
     // Get the resources from the server.
-    if ($resources = $this->server->get($endpoint, $query)->response()) {
+    $this->server->get($endpoint, $query);
+
+    // Get the resources from the response.
+    if ($resources = $this->getResponse()) {
 
       // Now return the parsed resources.
       return $this->parse($resources, $className);
@@ -163,11 +179,16 @@ class restPHP_Resource {
     // Only get if there is a type and an id.
     if ($this->type && $this->id) {
 
+      // Get the object from the server.
+      $this->server->get($this->endpoint('get'), NULL, FALSE);
+
       // Get the response from the server.
-      if ($resp = $this->server->get($this->endpoint('get'), NULL, FALSE)->response()) {
+      if ($resp = $this->getResponse()) {
         $this->update($resp);
       }
       else {
+
+        // Set to NULL since this object doesn't exist.
         $this->id = NULL;
       }
     }
@@ -234,10 +255,11 @@ class restPHP_Resource {
         // If the resource has an ID, then we PUT otherwise POST.
         $method = $this->id ? 'put' : 'post';
 
-        // Make the call to the server.
-        if ($resp = $this->server->{$method}($this->endpoint('set'), $params)->response()) {
-          $this->update($resp);
-        }
+        // Set the server object.
+        $this->server->{$method}($this->endpoint('set'), $params);
+
+        // Update the data model based on the response.
+        $this->update($this->getResponse());
       }
     }
 

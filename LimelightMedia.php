@@ -123,12 +123,9 @@ class LimelightMedia extends LimelightResource {
    * Returns the endpoint for this resource for both get and set operations.
    */
   protected function endpoint($type) {
-    $endpoint = $this->type;
+    $endpoint = parent::endpoint($type);
     if ($type == 'index') {
-      $endpoint .= ($type == 'index') ? ('/search') : '';
-    }
-    else {
-      $endpoint .= $this->id ? ('/' . $this->id . '/properties') : '';
+      $endpoint .= '/search';
     }
     return $endpoint;
   }
@@ -152,9 +149,8 @@ class LimelightMedia extends LimelightResource {
       // Get the endpoint, and make the request.
       $endpoint = $this->type . '/' . $this->id . '/download_url';
       $params = array('quality' => $quality);
-      if (!$this->server->call($endpoint, HTTP_Request2::METHOD_POST, $params, NULL, TRUE)->errors()) {
-        $url = $this->server->response();
-      }
+      $this->server->call($endpoint, HTTP_Request2::METHOD_POST, $params, NULL, TRUE);
+      $url = $this->getResponse();
 
       // Reset the server configurations.
       $this->server->setConfig('authenticate', FALSE);

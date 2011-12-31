@@ -79,8 +79,16 @@ class LimelightResource extends restPHP_Resource {
    * Returns the endpoint for this resource for both get and set operations.
    */
   protected function endpoint($type) {
-    $endpoint = $this->type;
-    $endpoint .= $this->id ? ('/' . $this->id . '/properties') : '';
+
+    // Get the endpoint from the parent.
+    $endpoint = parent::endpoint($type);
+
+    // For get and set calls, we append "properties" to the endpoint.
+    if ($this->id && in_array($type, array('get', 'set'))) {
+      $endpoint .= '/properties';
+    }
+
+    // Return the endpoint.
     return $endpoint;
   }
 
