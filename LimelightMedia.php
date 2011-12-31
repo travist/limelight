@@ -136,7 +136,7 @@ class LimelightMedia extends LimelightResource {
   /**
    * Returns the download URL for this media.
    */
-  public function url($quality = LIMELIGHT_QUALITY_HIGH) {
+  public function url($quality = LIMELIGHT_QUALITY_LOW) {
     $url = '';
     if ($this->type && $this->id) {
 
