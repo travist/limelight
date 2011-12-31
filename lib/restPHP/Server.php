@@ -147,9 +147,10 @@ class restPHP_Server {
    * Called to validate the response of the request.
    */
   protected function validate() {
-    if (!$this->response || (isset($this->response->errors) && $this->response->errors)) {
+    
+    // If errors occur, then call the onError method in the request object.
+    if ($errors = $this->errors()) {
       if (method_exists($this->request, 'onError')) {
-        $errors = isset($this->response) ? $this->response->errors : array();
         $this->request->onError($errors);
       }
     }
