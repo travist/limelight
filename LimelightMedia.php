@@ -146,7 +146,7 @@ class LimelightMedia extends LimelightResource {
       $this->server->setConfig('request', array(
         'force_cache' => TRUE,
         'cache_seed' => $quality,
-        'cache_timeout' => 900, /* 15 minutes */
+        'cache_timeout' => 900, /* 15 minute invalidation */
       ));
 
       // Get the endpoint, and make the request.
