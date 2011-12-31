@@ -49,7 +49,12 @@ class restPHP_Server {
    */
   public function setConfig($param, $value) {
     if (isset($this->config[$param])) {
-      $this->config[$param] = $value;
+      if (is_array($this->config[$param]) && is_array($value)) {
+        $this->config[$param] = array_merge($this->config[$param], $value);
+      }
+      else {
+        $this->config[$param] = $value;
+      }
     }
     return $this;
   }

@@ -9,7 +9,6 @@ require_once 'CachedRequest.php';
 class HTTP_FileCachedRequest extends HTTP_CachedRequest {
 
   protected $cache_path = '';
-  protected $cache_exists = FALSE;
 
   // The constructor.
   function __construct($url = null, $method = self::METHOD_GET, array $config = array()) {
@@ -29,7 +28,15 @@ class HTTP_FileCachedRequest extends HTTP_CachedRequest {
   public function set_cache_name($cache_name) {
     parent::set_cache_name($cache_name);
     $this->cache_path = $this->config['cache_directory'] . '/' . $cache_name;
-    $this->cache_exists = file_exists($this->cache_path);
+  }
+
+  /**
+   * Returns if the cache exists.
+   *
+   * @return type
+   */
+  public function cache_exists() {
+    return file_exists($this->cache_path);
   }
 
   /**
@@ -38,7 +45,7 @@ class HTTP_FileCachedRequest extends HTTP_CachedRequest {
    * @return type
    */
   public function cache_valid() {
-    $valid = $this->cache_exists;
+    $valid = parent::cache_valid();
     if ($valid) {
       $valid &= ((filemtime($this->cache_path) + $this->config['cache_timeout']) >= time());
     }
@@ -56,7 +63,7 @@ class HTTP_FileCachedRequest extends HTTP_CachedRequest {
    * Clears the current cache for this name.
    */
   public function cache_clear() {
-    if ($this->cache_exists) {
+    if ($this->cache_exists()) {
       unlink($this->cache_path);
     }
   }

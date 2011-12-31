@@ -28,6 +28,13 @@ class HTTP_CachedRequest extends HTTP_Request2 {
   }
 
   /**
+   * Returns the name of the cache.
+   */
+  public function get_cache_name() {
+    return md5($this->url->getURL() . $this->config['cache_seed']);
+  }
+
+  /**
    * Sets the cache name.
    *
    * Derived classes can implement this hook when the cache name is set and before
@@ -45,12 +52,17 @@ class HTTP_CachedRequest extends HTTP_Request2 {
   }
 
   /**
+   * Returns if the cache exists.
+   */
+  public function cache_exists() {
+    return isset($this->static_cache[$this->cache_name]);
+  }
+
+  /**
    * Return if this cache is valid.
-   *
-   * @return type
    */
   public function cache_valid() {
-    return isset($this->static_cache[$this->cache_name]);
+    return $this->cache_exists();
   }
 
   /**
@@ -85,9 +97,8 @@ class HTTP_CachedRequest extends HTTP_Request2 {
   // Override the send function to only send if the cache exists and is valid.
   public function send() {
 
-    // Set the cache name to the md5 of the URL + cache_token.
-    $seed = $this->url->getURL() . $this->config['cache_seed'];
-    $this->set_cache_name(md5($seed));
+    // Sets the cache name.
+    $this->set_cache_name($this->get_cache_name());
 
     // Only send if we shouldn't cache or if the cache is invalid.
     $response = null;
