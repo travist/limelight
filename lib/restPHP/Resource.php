@@ -60,6 +60,13 @@ class restPHP_Resource {
   }
 
   /**
+   * Add a method to return if any errors occured on last update.
+   */
+  public function errors() {
+    return $this->server->errors();
+  }
+
+  /**
    * Returns a query with provided defaults.
    *
    * @return The correct query based on defaults and provided values.
@@ -103,7 +110,7 @@ class restPHP_Resource {
   protected function getResponse() {
 
     // Return the response only if there were no errors and if the response exists.
-    if (($resp = $this->server->response()) && !$this->server->errors()) {
+    if (($resp = $this->server->response()) && !$this->errors()) {
       return $resp;
     }
 

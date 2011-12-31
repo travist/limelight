@@ -140,7 +140,7 @@ class LimelightChannel extends LimelightResource {
    * Sets the publish state of this channel.
    */
   public function publish($state = TRUE) {
-    return !$this->set(array('state' => ($state ? 'Published' : 'NotPublished')))->server->errors();
+    return !$this->set(array('state' => ($state ? 'Published' : 'NotPublished')))->errors();
   }
 
   /**
