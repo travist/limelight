@@ -103,31 +103,67 @@ class LimelightResource extends restPHP_Resource {
     // Set the parent first.
     parent::set($params);
 
-    // See if there is custom data to be set.
-    if (isset($this->diff['custom_property'])) {
+    // Now set the custom data.
+    $custom = isset($params['custom']) ? $params['custom'] : array();
+    $this->setCustom($custom);
 
-      // Set the custom data.
+    return $this;
+  }
+
+  /**
+   * Sets custom data within the Limelight Resource.
+   *
+   * @param type $params
+   */
+  public function setCustom($params = array()) {
+
+    // See if there is custom data to be set.
+    $custom_diff = isset($this->diff['custom_property']) ? $this->diff['custom_property'] : array();
+    $params = $params ? $params : $custom_diff;
+    if ($this->id && $params) {
+
+      // Determine the actual difference.
+      $set = array();
+      $delete = array();
+      foreach ($params as $key => $value) {
+        if (!isset($this->custom_property->{$key}) || ($this->custom_property->{$key} != $value)) {
+          if ($value) {
+            $set[$key] = $value;
+          }
+          else if (isset($this->custom_property->{$key})) {
+            $delete[] = $key;
+          }
+        }
+      }
+
+      // Set the custom endpoint.
       $endpoint = $this->endpoint('set');
       $endpoint .= '/custom';
-      $this->server->setConfig('authenticate', TRUE);
-      $this->server->put($endpoint, $this->diff['custom_property']);
-      $this->server->setConfig('authenticate', FALSE);
 
-      /**
-       * As long as no errors occured, we can assume the call was a success.
-       * Update the custom properties since there isn't any return.
-       */
-      if (!$this->errors()) {
-        foreach ($this->diff['custom_property'] as $key => $value) {
-          if (!isset($this->custom_property)) {
-            $this->custom_property = new stdClass();
+      if ($set) {
+        // Set the custom data.
+        $this->server->put($endpoint, $set);
+        if (!$this->errors()) {
+          foreach ($set as $key => $value) {
+            if (!isset($this->custom_property)) {
+              $this->custom_property = new stdClass();
+            }
+            $this->custom_property->{$key} = $value;
           }
-          $this->custom_property->{$key} = $value;
+        }
+      }
+
+      if ($delete) {
+
+        // To delete a value, we have to do them one-by-one.
+        foreach ($delete as $property) {
+          $this->server->delete($endpoint . '/' . rawurlencode($property));
+          if (!$this->errors()) {
+            unset($this->custom_property->{$property});
+          }
         }
       }
     }
-
-    return $this;
   }
 
   /**
