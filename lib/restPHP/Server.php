@@ -147,7 +147,7 @@ class restPHP_Server {
    * Called to validate the response of the request.
    */
   protected function validate() {
-    
+
     // If errors occur, then call the onError method in the request object.
     if ($errors = $this->errors()) {
       if (method_exists($this->request, 'onError')) {
@@ -166,6 +166,25 @@ class restPHP_Server {
       return $this->response->errors;
     }
     return array();
+  }
+
+  /**
+   * Debugs the current call.
+   */
+  protected function debug() {
+    
+    // If they wish to debug the call, then do so here.
+    if (isset($this->config['debug']) && ($debug = $this->config['debug'])) {
+      $debug(array(
+        'method' => $this->request->getMethod(),
+        'path' => $this->request->getUrl()->getPath(),
+        'query' => $this->request->getUrl()->getQuery(),
+        'params' => $this->request->getBody(),
+        'errors' => $this->errors()
+      ));
+    }
+
+    return $this;
   }
 
   /**
@@ -188,7 +207,8 @@ class restPHP_Server {
       ->authenticate()                /** Authenticate the request */
       ->send()                        /** Send the request. */
       ->decode()                      /** Decode the response. */
-      ->validate();                   /** Validate the response. */
+      ->validate()                    /** Validate the response. */
+      ->debug();                      /** Debug the call. */
 
     // Return the this pointer.
     return $this;

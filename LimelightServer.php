@@ -122,6 +122,19 @@ class LimelightServer extends restPHP_Server {
   }
 
   /**
+   * Only send debug statemenets when it isn't cached.
+   */
+  protected function debug() {
+
+    // If this was a cache miss, then we wish to debug... otherwise skip it.
+    if (isset($this->request->cache_state) && !$this->request->cache_state) {
+      return parent::debug();
+    }
+
+    return $this;
+  }
+
+  /**
    * Performs a put call.
    */
   public function put($endpoint, $params) {

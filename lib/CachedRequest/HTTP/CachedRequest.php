@@ -12,6 +12,9 @@ class HTTP_CachedRequest extends HTTP_Request2 {
   // APC, or MemCache.
   protected $static_cache = array();
 
+  // 0 for miss, 1 for cache hit.
+  public $cache_state = 0;
+
   // The constructor.
   function __construct($url = null, $method = self::METHOD_GET, array $config = array()) {
 
@@ -103,7 +106,11 @@ class HTTP_CachedRequest extends HTTP_Request2 {
     // Only send if we shouldn't cache or if the cache is invalid.
     $response = null;
     if (!$this->should_cache() || !$this->cache_valid()) {
+      $this->cache_state = 0;
       $response = parent::send();
+    }
+    else {
+      $this->cache_state = 1;
     }
 
     // Return our cached response.
