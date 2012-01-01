@@ -289,6 +289,21 @@ class restPHP_Resource {
   }
 
   /**
+   * Determine if the value of a parameter is different or not.
+   */
+  protected function setDiff($param, $value) {
+    // If the current value is already set, and the value from this update
+    // is different from the value that is already in this object, then
+    // we need to keep track of this difference so that when we push an
+    // update, we don't send everything.
+    if (isset($this->{$param}) && ($this->{$param} != $value)) {
+
+      // Store this value in the diff array.
+      $this->diff[$param] = $this->{$param};
+    }
+  }
+
+  /**
    * Updates the data model based on the response.
    */
   public function update($params = array()) {
@@ -305,15 +320,8 @@ class restPHP_Resource {
         // Check to see if this parameter exists.
         if (property_exists($this, $key)) {
 
-          // If the current value is already set, and the value from this update
-          // is different from the value that is already in this object, then
-          // we need to keep track of this difference so that when we push an
-          // update, we don't send everything.
-          if (isset($this->{$key}) && ($this->{$key} != $value)) {
-
-            // Store this value in the diff array.
-            $this->diff[$key] = $this->{$key};
-          }
+          // Set the difference of this parameter.
+          $this->setDiff($key, $value);
 
           // Update the data model with this value.
           $this->{$key} = $value;

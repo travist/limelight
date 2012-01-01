@@ -120,11 +120,11 @@ class LimelightChannel extends LimelightResource {
 
     // Only add if the media doesn't already exist in the channel.
     if (!$found) {
-      return $this->setMedia($media, HTTP_Request2::METHOD_PUT);
+      $found = $this->setMedia($media, HTTP_Request2::METHOD_PUT);
     }
 
-    // Return FALSE that no media was added.
-    return FALSE;
+    // Return TRUE if this media is in this channel after this call.
+    return $found;
   }
 
   /**
