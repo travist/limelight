@@ -119,9 +119,10 @@ class LimelightResource extends restPHP_Resource {
        */
       if (!$this->errors()) {
         foreach ($this->diff['custom_property'] as $key => $value) {
-          if (isset($this->custom_property->{$key})) {
-            $this->custom_property->{$key} = $value;
+          if (!isset($this->custom_property)) {
+            $this->custom_property = new stdClass();
           }
+          $this->custom_property->{$key} = $value;
         }
       }
     }
