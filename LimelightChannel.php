@@ -68,12 +68,16 @@ class LimelightChannel extends LimelightResource {
    * Returns all the media associated with this channel.
    */
   public function getMedia($query = array()) {
-    $query = $this->getQuery($query, array(
-      'page_id' => 0,
-      'page_size' => 25
-    ));
-    $endpoint = $this->type . '/' . $this->id . '/media';
-    return $this->getIndex($endpoint, $query, 'LimelightMedia');
+    $ret = array();
+    if ($this->id) {
+      $query = $this->getQuery($query, array(
+        'page_id' => 0,
+        'page_size' => 25
+      ));
+      $endpoint = $this->type . '/' . $this->id . '/media';
+      $ret = $this->getIndex($endpoint, $query, 'LimelightMedia');
+    }
+    return $ret;
   }
 
   /**
@@ -102,25 +106,27 @@ class LimelightChannel extends LimelightResource {
     // Default find to false.
     $found = FALSE;
 
-    // If they don't want duplicates, then we need to search existing
-    // media in this channel.
-    if (!$allow_duplicates) {
+    if ($this->id) {
+      // If they don't want duplicates, then we need to search existing
+      // media in this channel.
+      if (!$allow_duplicates) {
 
-      // Get all the media in this channel.
-      $media_list = $this->getMedia();
+        // Get all the media in this channel.
+        $media_list = $this->getMedia();
 
-      // Iterate through the media and find this media.
-      foreach ($media_list as $list_media) {
-        if ($media->id == $list_media->id) {
-          $found = TRUE;
-          break;
+        // Iterate through the media and find this media.
+        foreach ($media_list as $list_media) {
+          if ($media->id == $list_media->id) {
+            $found = TRUE;
+            break;
+          }
         }
       }
-    }
 
-    // Only add if the media doesn't already exist in the channel.
-    if (!$found) {
-      $found = $this->setMedia($media, HTTP_Request2::METHOD_PUT);
+      // Only add if the media doesn't already exist in the channel.
+      if (!$found) {
+        $found = $this->setMedia($media, HTTP_Request2::METHOD_PUT);
+      }
     }
 
     // Return TRUE if this media is in this channel after this call.

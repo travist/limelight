@@ -126,12 +126,14 @@ class LimelightResource extends restPHP_Resource {
       $set = array();
       $delete = array();
       foreach ($params as $key => $value) {
-        if (!isset($this->custom_property->{$key}) || ($this->custom_property->{$key} != $value)) {
-          if ($value) {
-            $set[$key] = $value;
-          }
-          else if (isset($this->custom_property->{$key})) {
-            $delete[] = $key;
+        if (!is_array($value)) {
+          if (!isset($this->custom_property->{$key}) || ($this->custom_property->{$key} != $value)) {
+            if ($value) {
+              $set[$key] = $value;
+            }
+            else if (isset($this->custom_property->{$key})) {
+              $delete[] = $key;
+            }
           }
         }
       }
