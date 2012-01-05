@@ -205,36 +205,41 @@ class restPHP_Resource {
   }
 
   /**
-   * Return the filtered object that will be sent to the server.  If a diff or
+   * Return the filtered object of only valid values.
+   */
+  protected function getFilteredObject($params = array()) {
+
+    // Return a filtered object.
+    return array_filter($this->getObject(), create_function('$x', 'return $x !== NULL;'));
+  }
+
+  /**
+   * Return the params that will be sent to the server.  If a diff or
    * params are provided, then it will only send the values that exist within
    * the diff or params that also exist in the data model. Wheras if there is
    * no diff or params, then it will return only the parameters with a valid
    * value.
-   *
-   * @return type
    */
-  protected function getFilteredObject($params = array()) {
+  protected function getParams($params = array()) {
 
-    // Get the filtered object based on what values are actually set.
-    $obj = $this->getObject();
-    $obj = array_filter($obj, create_function('$x', 'return $x !== NULL;'));
-
-    // If there is an ID, then we want the params to only be what is different
-    // or what they provided within the params argument.
+    // Check for an ID.
     if ($this->id) {
 
-      // Use either what they provided, or the diff.
-      $params = $params ? $params : $this->diff;
-      $params = $params ? array_intersect_key($params, $obj) : array();
+      // If they provide params, then we want to return the
+      // intersection between those params and the filtered object.
+      if ($params) {
+        $obj = $this->getFilteredObject();
+        return array_intersect_key($params, $obj);
+      }
+
+      // Return the diff.
+      return $this->diff;
     }
     else {
 
-      // Return all the values that are valid within this data model for insert.
-      $params = $obj;
+      // Return the filtered object.
+      return $this->getFilteredObject();
     }
-
-    // Return the parameters.
-    return $params;
   }
 
   /**
@@ -257,7 +262,7 @@ class restPHP_Resource {
     if ($this->type) {
 
       // Only update if the filtered parameters returns something to update.
-      if ($params = $this->getFilteredObject($params)) {
+      if ($params = $this->getParams($params)) {
 
         // If the resource has an ID, then we PUT otherwise POST.
         $method = $this->id ? 'put' : 'post';
@@ -319,6 +324,9 @@ class restPHP_Resource {
 
         // Check to see if this parameter exists.
         if (property_exists($this, $key)) {
+
+          // Normalize the value.
+          $value = is_object($value) ? (array)$value : $value;
 
           // Set the difference of this parameter.
           $this->setDiff($key, $value);

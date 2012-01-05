@@ -33,16 +33,6 @@ class LimelightResource extends restPHP_Resource {
   }
 
   /**
-   * Get the filtered object, which for limelight, always requires the title.
-   *
-   * @param type $params
-   */
-  protected function getFilteredObject($params = array()) {
-    $params = parent::getFilteredObject($params);
-    return $params;
-  }
-
-  /**
    * Parse function to parse out resources returned by list functions.
    *
    * @param type $resources
@@ -60,6 +50,17 @@ class LimelightResource extends restPHP_Resource {
 
     // Parse the resources.
     return parent::parse($resources, $className);
+  }
+
+  /**
+   * Override the getParams to unset the custom_property.
+   *
+   * @param type $params
+   */
+  protected function getParams($params = array()) {
+    $params = parent::getParams($params);
+    unset($params['custom_property']);
+    return $params;
   }
 
   /**
@@ -117,23 +118,27 @@ class LimelightResource extends restPHP_Resource {
    */
   public function setCustom($params = array()) {
 
-    // See if there is custom data to be set.
-    $custom_diff = isset($this->diff['custom_property']) ? $this->diff['custom_property'] : array();
-    $params = $params ? $params : $custom_diff;
-    if ($this->id && $params) {
+    if ($this->id) {
 
-      // Determine the actual difference.
+      // See if there is custom data to be set.
       $set = array();
       $delete = array();
-      foreach ($params as $key => $value) {
-        if (!is_array($value)) {
-          if (!isset($this->custom_property->{$key}) || ($this->custom_property->{$key} != $value)) {
-            if ($value) {
-              $set[$key] = $value;
-            }
-            else if (isset($this->custom_property->{$key})) {
-              $delete[] = $key;
-            }
+      $custom_diff = isset($this->diff['custom_property']) ? $this->diff['custom_property'] : $params;
+
+      // If a property is set in the diff, but not set or different in the object, then set the value.
+      if ($custom_diff) {
+        foreach ($custom_diff as $key => $value) {
+          if ($value && (!isset($this->custom_property[$key]) || ($this->custom_property[$key] != $value))) {
+            $set[$key] = $value;
+          }
+        }
+      }
+
+      // If a property is set in the object, but not set in the diff, then delete.
+      if ($this->custom_property) {
+        foreach ($this->custom_property as $key => $value) {
+          if (!isset($custom_diff[$key]) || !$custom_diff[$key]) {
+            $delete[] = $key;
           }
         }
       }
@@ -148,20 +153,19 @@ class LimelightResource extends restPHP_Resource {
         if (!$this->errors()) {
           foreach ($set as $key => $value) {
             if (!isset($this->custom_property)) {
-              $this->custom_property = new stdClass();
+              $this->custom_property = array();
             }
-            $this->custom_property->{$key} = $value;
+            $this->custom_property[$key] = $value;
           }
         }
       }
 
       if ($delete) {
-
         // To delete a value, we have to do them one-by-one.
         foreach ($delete as $property) {
           $this->server->delete($endpoint . '/' . rawurlencode($property));
           if (!$this->errors()) {
-            unset($this->custom_property->{$property});
+            unset($this->custom_property[$property]);
           }
         }
       }
