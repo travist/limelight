@@ -341,6 +341,88 @@ class restPHP_Resource {
   }
 
   /**
+   * This method allows you to set a property of your class which has its own
+   * endpoint to set or delete the values of that property.  This is useful if
+   * you have a property in this class which is an array of key/value pairs;
+   * each of which can have their own endpoint to set or delete.
+   *
+   * @param string $param The name of the parameter in this object.
+   * @param string $endpoint The endpoint for this parameter.
+   * @param array $values An array of key/value pairs for this parameter.
+   * @param array $options An array of the following options.
+   *    - seteach: Make a service call to set each key|value pair.
+   *    - deleteeach: Make a service call to delete each key|value pair.
+   */
+  public function setProperties($param, $endpoint, $values = array(), $options = array()) {
+    if ($this->id) {
+
+      $set = array();
+      $delete = array();
+      $values = isset($this->diff[$param]) ? $this->diff[$param] : $values;
+
+      // If a property is set in the values, but not set or different in
+      // the object, then we will want to set the value.
+      if ($values) {
+        foreach ($values as $key => $value) {
+          if ($value && (!isset($this->{$param}[$key]) || ($this->{$param}[$key] != $value))) {
+            $set[$key] = $value;
+          }
+        }
+
+        // Now set the values.
+        $this->setProperty($param, $endpoint, $set, 'put', $options['seteach']);
+      }
+
+      // If a property is set in the object, but is set but not valid in the values, then delete.
+      if ($this->{$param}) {
+        foreach ($this->{$param} as $key => $value) {
+          if (isset($values[$key]) && !$values[$key]) {
+            $delete[] = $key;
+          }
+        }
+
+        // Now delete the values.
+        $this->setProperty($param, $endpoint, $delete, 'delete', $options['deleteeach']);
+      }
+    }
+  }
+
+  /**
+   * Sets a property.
+   *
+   * @param string $param The name of the parameter in this object.
+   * @param string $endpoint The endpoint for this parameter.
+   * @param array $values An array of key/value pairs for this parameter.
+   * @param string $type The type of operation to perform 'set' or 'delete'.
+   * @param boolean $each Whether to set each key|value pair or not.
+   */
+  protected function setProperty($param, $endpoint, $values, $type, $each) {
+    if ($values) {
+      if (!$each) {
+        $this->server->{$type}($endpoint, $values);
+        $errors = $this->errors();
+      }
+      foreach ($values as $key => $value) {
+        if ($each) {
+          $this->server->{$type}($endpoint . '/' . rawurlencode($key), $value);
+          $errors = $this->errors();
+        }
+        if (!$errors) {
+          if ($type == 'put') {
+            if (!isset($this->{$param})) {
+              $this->{$param} = array();
+            }
+            $this->{$param}[$key] = $value;
+          }
+          else {
+            unset($this->{$param}[$key]);
+          }
+        }
+      }
+    }
+  }
+
+  /**
    * Returns the object sent to the server.
    */
   public function getObject() {

@@ -105,71 +105,51 @@ class LimelightResource extends restPHP_Resource {
     parent::set($params);
 
     // Now set the custom data.
-    $custom = isset($params['custom']) ? $params['custom'] : array();
-    $this->setCustom($custom);
+    $endpoint = $this->endpoint('set') . '/custom';
+    $this->setProperties('custom_property', $endpoint, $params['custom'], array(
+      'deleteeach' => TRUE
+    ));
 
+    // Return the this pointer.
     return $this;
   }
 
   /**
-   * Sets custom data within the Limelight Resource.
-   *
-   * @param type $params
+   * Adds a custom property to this resource.
    */
-  public function setCustom($params = array()) {
-
-    if ($this->id) {
-
-      // See if there is custom data to be set.
-      $set = array();
-      $delete = array();
-      $custom_diff = isset($this->diff['custom_property']) ? $this->diff['custom_property'] : $params;
-
-      // If a property is set in the diff, but not set or different in the object, then set the value.
-      if ($custom_diff) {
-        foreach ($custom_diff as $key => $value) {
-          if ($value && (!isset($this->custom_property[$key]) || ($this->custom_property[$key] != $value))) {
-            $set[$key] = $value;
-          }
-        }
-      }
-
-      // If a property is set in the object, but not set in the diff, then delete.
-      if ($this->custom_property) {
-        foreach ($this->custom_property as $key => $value) {
-          if (!isset($custom_diff[$key]) || !$custom_diff[$key]) {
-            $delete[] = $key;
-          }
-        }
-      }
-
-      // Set the custom endpoint.
-      $endpoint = $this->endpoint('set');
-      $endpoint .= '/custom';
-
-      if ($set) {
-        // Set the custom data.
-        $this->server->put($endpoint, $set);
-        if (!$this->errors()) {
-          foreach ($set as $key => $value) {
-            if (!isset($this->custom_property)) {
-              $this->custom_property = array();
-            }
-            $this->custom_property[$key] = $value;
-          }
-        }
-      }
-
-      if ($delete) {
-        // To delete a value, we have to do them one-by-one.
-        foreach ($delete as $property) {
-          $this->server->delete($endpoint . '/' . rawurlencode($property));
-          if (!$this->errors()) {
-            unset($this->custom_property[$property]);
-          }
-        }
-      }
+  public function addCustom($name, $type = 'text', $default_values = array()) {
+    $endpoint = $this->endpoint('set') . '/custom/' . rawurlencode($name);
+    $params = array();
+    $params['type'] = $type;
+    if ($default_values) {
+      $params['default_values'] = $default_values;
     }
+    $this->server->post($endpoint, $params, FALSE);
+    return $this;
+  }
+
+  /**
+   * Removes a custom property of this resource.
+   */
+  public function deleteCustom($name) {
+    $endpoint = $this->endpoint('set') . '/custom/' . rawurlencode($name);
+    $this->server->delete($endpoint);
+    return $this;
+  }
+
+  /**
+   * Updates a custom property.
+   */
+  public function updateCustom($name, $new_name = '', $type = 'text', $default_values = array()) {
+    $endpoint = $this->endpoint('set') . '/custom/' . rawurlencode($name);
+    $params = array();
+    $params['new_property_name'] = $new_name ? $new_name : $name;
+    $params['type'] = $type;
+    if ($default_values) {
+      $params['default_values'] = $default_values;
+    }
+    $this->server->put($endpoint, $params, FALSE);
+    return $this;
   }
 
   /**

@@ -79,6 +79,36 @@ class LimelightMedia extends LimelightResource {
   }
 
   /**
+   * Override the getParams to unset the tags.
+   *
+   * @param type $params
+   */
+  protected function getParams($params = array()) {
+    $params = parent::getParams($params);
+    unset($params['tags']);
+    return $params;
+  }
+
+  /**
+   * Perform a set along with custom data.
+   */
+  public function set($params = array()) {
+
+    // Set the parent params.
+    parent::set($params);
+
+    // Now set the tags
+    $endpoint = $this->endpoint('set') . '/properties/tags';
+    $this->setProperties('tags', $endpoint, $params['tags'], array(
+      'seteach' => TRUE,
+      'deleteeach' => TRUE
+    ));
+
+    // Return the this pointer.
+    return $this;
+  }
+
+  /**
    * Returns the endpoint for this resource.
    */
   public function getType() {
