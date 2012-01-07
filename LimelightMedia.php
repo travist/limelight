@@ -98,8 +98,9 @@ class LimelightMedia extends LimelightResource {
     parent::set($params);
 
     // Now set the tags
-    $endpoint = $this->endpoint('set') . '/properties/tags';
-    $this->setProperties('tags', $endpoint, $params['tags'], array(
+    $endpoint = $this->endpoint('set') . '/tags';
+    $tags = isset($params['tags']) ? $params['tags'] : array();
+    $this->setProperties('tags', $endpoint, $tags, array(
       'seteach' => TRUE,
       'deleteeach' => TRUE
     ));

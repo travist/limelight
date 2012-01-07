@@ -106,7 +106,8 @@ class LimelightResource extends restPHP_Resource {
 
     // Now set the custom data.
     $endpoint = $this->endpoint('set') . '/custom';
-    $this->setProperties('custom_property', $endpoint, $params['custom'], array(
+    $custom = isset($params['custom']) ? $params['custom'] : array();
+    $this->setProperties('custom_property', $endpoint, $custom, array(
       'deleteeach' => TRUE
     ));
 

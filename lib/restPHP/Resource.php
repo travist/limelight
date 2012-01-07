@@ -370,7 +370,8 @@ class restPHP_Resource {
         }
 
         // Now set the values.
-        $this->setProperty($param, $endpoint, $set, 'put', $options['seteach']);
+        $each = isset($options['seteach']) ? $options['seteach'] : FALSE;
+        $this->setProperty($param, $endpoint, $set, 'put', $each);
       }
 
       // If a property is set in the object, but is set but not valid in the values, then delete.
@@ -382,7 +383,8 @@ class restPHP_Resource {
         }
 
         // Now delete the values.
-        $this->setProperty($param, $endpoint, $delete, 'delete', $options['deleteeach']);
+        $each = isset($options['seteach']) ? $options['deleteeach'] : FALSE;
+        $this->setProperty($param, $endpoint, $delete, 'delete', $each);
       }
     }
   }
