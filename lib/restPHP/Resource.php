@@ -384,13 +384,15 @@ class restPHP_Resource {
       // If a property is set in the object, but is set but not valid in the values, then delete.
       if ($this->{$param}) {
         foreach ($this->{$param} as $key => $value) {
-          if (is_string($key)) {
-            if(isset($values[$key]) && !$values[$key]) {
+          if (isset($values[$key])) {
+            if (is_string($key)) {
+              if(!$values[$key]) {
+                $delete[$key] = $value;
+              }
+            }
+            else if (!in_array($value, $values)) {
               $delete[$key] = $value;
             }
-          }
-          else if (!in_array($value, $values)) {
-            $delete[$key] = $value;
           }
         }
 
