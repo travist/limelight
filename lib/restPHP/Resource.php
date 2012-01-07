@@ -383,7 +383,7 @@ class restPHP_Resource {
         }
 
         // Now delete the values.
-        $each = isset($options['seteach']) ? $options['deleteeach'] : FALSE;
+        $each = isset($options['deleteeach']) ? $options['deleteeach'] : FALSE;
         $this->setProperty($param, $endpoint, $delete, 'delete', $each);
       }
     }
@@ -406,7 +406,8 @@ class restPHP_Resource {
       }
       foreach ($values as $key => $value) {
         if ($each) {
-          $this->server->{$type}($endpoint . '/' . rawurlencode($key), $value);
+          $property = is_string($key) ? $key : $value;
+          $this->server->{$type}($endpoint . '/' . rawurlencode($property), array(), FALSE);
           $errors = $this->errors();
         }
         if (!$errors) {

@@ -137,9 +137,9 @@ class LimelightServer extends restPHP_Server {
   /**
    * Performs a put call.
    */
-  public function put($endpoint, $params) {
+  public function put($endpoint, $params, $has_format = TRUE) {
     $this->config['authenticate'] = TRUE;
-    $ret = parent::put($endpoint, $params);
+    $ret = parent::put($endpoint, $params, $has_format);
     $this->config['authenticate'] = FALSE;
     return $ret;
   }
@@ -147,9 +147,9 @@ class LimelightServer extends restPHP_Server {
   /**
    * Performs a post call.
    */
-  public function post($endpoint, $params) {
+  public function post($endpoint, $params, $has_format = TRUE) {
     $this->config['authenticate'] = TRUE;
-    $ret = parent::post($endpoint, $params);
+    $ret = parent::post($endpoint, $params, $has_format);
     $this->config['authenticate'] = FALSE;
     return $ret;
   }
