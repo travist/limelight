@@ -364,8 +364,15 @@ class restPHP_Resource {
       // the object, then we will want to set the value.
       if ($values) {
         foreach ($values as $key => $value) {
-          if ($value && (!isset($this->{$param}[$key]) || ($this->{$param}[$key] != $value))) {
-            $set[$key] = $value;
+          if ($value) {
+            if (is_string($key)) {
+              if(!isset($this->{$param}[$key]) || ($this->{$param}[$key] != $value)) {
+                $set[$key] = $value;
+              }
+            }
+            else if (!in_array($value, $this->{$param})) {
+              $set[$key] = $value;
+            }
           }
         }
 
@@ -377,8 +384,13 @@ class restPHP_Resource {
       // If a property is set in the object, but is set but not valid in the values, then delete.
       if ($this->{$param}) {
         foreach ($this->{$param} as $key => $value) {
-          if (isset($values[$key]) && !$values[$key]) {
-            $delete[] = $key;
+          if (is_string($key)) {
+            if(isset($values[$key]) && !$values[$key]) {
+              $delete[$key] = $value;
+            }
+          }
+          else if (!in_array($value, $values)) {
+            $delete[$key] = $value;
           }
         }
 
