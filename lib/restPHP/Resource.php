@@ -18,7 +18,7 @@ class restPHP_Resource {
   public $diff = array();
 
   /** Constructor */
-  function __construct($params = null, $sync = TRUE) {
+  function __construct($params = array(), $sync = TRUE) {
 
     // Convert the params to an array.
     $params = (array)$params;
