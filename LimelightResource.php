@@ -1,7 +1,6 @@
 <?php
 
 require_once 'lib/restPHP/Resource.php';
-require_once 'LimelightConfig.php';
 require_once 'LimelightServer.php';
 
 class LimelightResource extends restPHP_Resource {

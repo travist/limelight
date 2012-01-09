@@ -121,7 +121,7 @@ class LimelightMedia extends LimelightResource {
    *
    * This function allows you to search media on the Limelight network.
    */
-  public static function search($query = array(), $operator = 'AND', $params = array()) {
+  public function search($query = array(), $operator = 'AND') {
 
     // Build the query string for the search.
     $query_string = array();
@@ -133,8 +133,7 @@ class LimelightMedia extends LimelightResource {
     $search_query = array(strtolower($operator) => implode(';', $query_string));
 
     // Now get the index with this query.
-    $class = get_called_class();
-    return $class::index($search_query, $params);
+    return $this->index($search_query);
   }
 
   /**

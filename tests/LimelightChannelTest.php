@@ -14,7 +14,8 @@ define('LIMELIGHT_TEST_MEDIA2', 'TESTMEDIA_DELETEME_2!!!');
  * @return type
  */
 function limelight_get_channels() {
-  return LimelightChannel::index(array('published'=>FALSE), array('server'=>array('request'=>array('cache'=>FALSE))));
+  $channel = new LimelightChannel(array('server'=>array('request'=>array('cache'=>FALSE))));
+  return $channel->index(array('published'=>FALSE));
 }
 
 /**

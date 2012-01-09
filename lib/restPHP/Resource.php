@@ -139,22 +139,9 @@ class restPHP_Resource {
   }
 
   /**
-   * A public static accessor to return an index of resources.
-   * Requires PHP 5.3.
-   *
-   * @param type $query
-   * @return type
-   */
-  public static function index($query = array(), $params = array()) {
-    $class = get_called_class();
-    $resource = new $class($params, FALSE);
-    return $resource->__index($query);
-  }
-
-  /**
    * Returns a list of self() objects.
    */
-  protected function __index($query = array()) {
+  public function index($query = array()) {
 
     // You must have an resource type to continue.
     if (!$this->type) {

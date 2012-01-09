@@ -13,10 +13,8 @@ define('LIMELIGHT_MEDIA_TAG', 'testing, one, two, three!');
  * @return type
  */
 function limelight_get_media_index() {
-  // Get all new media.
-  $query = array('state' => 'new');
-  $params = array('server'=>array('request'=>array('cache'=>FALSE)));
-  return LimelightMedia::search($query, 'AND', $params);
+  $media = new LimelightMedia(array('server'=>array('request'=>array('cache'=>FALSE))));
+  return $media->search(array('state' => 'new'), 'AND');
 }
 
 /**
