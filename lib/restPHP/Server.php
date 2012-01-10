@@ -5,8 +5,14 @@
  * provides an easy RESTful interface to web services.
  */
 
-// Require the HTTP_Request2 class.
-require_once 'HTTP/Request2.php';
+// Include the HTTP_Request2 class.
+include_once 'HTTP/Request2.php';
+if (!class_exists('HTTP_Request2', FALSE)) {
+
+  // Add the included pear library in the include path.
+  ini_set('include_path',ini_get('include_path').':' . dirname(__FILE__) . '/PEAR:');
+  include_once 'HTTP/Request2.php';
+}
 
 class restPHP_Server {
 
@@ -172,7 +178,7 @@ class restPHP_Server {
    * Debugs the current call.
    */
   protected function debug() {
-    
+
     // If they wish to debug the call, then do so here.
     if (isset($this->config['debug']) && ($debug = $this->config['debug'])) {
       $debug(array(
