@@ -13,13 +13,17 @@ following.
 
   - Now install the HTTP_Request2 library by typing...
 
+```
     sudo pear upgrade PEAR
     sudo pear config-set auto_discover 1
     sudo pear install HTTP_Request2
+```
 
 If you wish to run the PHPUnit tests, you will need to have PHPUnit installed.
 
+```
     sudo pear install pear.phpunit.de/PHPUnit
+```
 
 Configuration:
 ------------------------------------
