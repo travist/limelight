@@ -34,6 +34,33 @@ Examples:
 
 To add new media on the Limelight CDN.
 
-require_once 'LimelightMedia.php';
-$media = new LimelightMedia();
+<?php
+  require_once 'LimelightMedia.php';
+  $media = new LimelightMedia(array(
+    'title' => 'New Media',
+    'media_file' => '/path/to/media.mp4'
+  ));
+  $media->set();
+?>
 
+To get media from Limelight CDN.
+
+<?php
+  require_once 'LimelightMedia.php';
+  $media = new LimelightMedia(array(
+    'id' => '123456789'
+  ));
+  print $media->title;
+?>
+
+To add a new channel to Limelight.
+
+<?php
+  require_once 'LimelightChannel.php';
+  $channel = new LimelightChannel(array(
+    'title' => 'My Channel'
+  ));
+  $channel->set();
+?>
+
+etc, etc...
