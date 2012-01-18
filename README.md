@@ -33,7 +33,7 @@ Examples:
 ------------------------------------
 
 To add new media on the Limelight CDN.
-
+```
 <?php
   require_once 'LimelightMedia.php';
   $media = new LimelightMedia(array(
@@ -42,9 +42,9 @@ To add new media on the Limelight CDN.
   ));
   $media->set();
 ?>
-
+```
 To get media from Limelight CDN.
-
+```
 <?php
   require_once 'LimelightMedia.php';
   $media = new LimelightMedia(array(
@@ -52,9 +52,9 @@ To get media from Limelight CDN.
   ));
   print $media->title;
 ?>
-
+```
 To add a new channel to Limelight.
-
+```
 <?php
   require_once 'LimelightChannel.php';
   $channel = new LimelightChannel(array(
@@ -62,5 +62,5 @@ To add a new channel to Limelight.
   ));
   $channel->set();
 ?>
-
+```
 etc, etc...
