@@ -100,6 +100,18 @@ class LimelightResource extends restPHP_Resource {
    */
   public function set($params = array()) {
 
+    /**
+     * HACK: Limelight API has a bug where it expects a string 'true' or 'false'
+     * instead of a boolean value.  Because of this, we need to iterate through
+     * each of the parameters and turn it into the string representation of a
+     * boolean.
+     */
+    foreach ($params as &$value) {
+      if (is_bool($value)) {
+        $value = $value ? 'true' : 'false';
+      }
+    }
+
     // Set the parent first.
     parent::set($params);
 

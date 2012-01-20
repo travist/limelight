@@ -16,22 +16,22 @@ class LimelightChannel extends LimelightResource {
   public $state = NULL;
 
   /** An indicator that enables share with a friend functionality. */
-  public $email_enabled = FALSE;
+  public $email_enabled = NULL;
 
   /** An indicator that enables get embed code functionality. */
-  public $embed_enabled = FALSE;
+  public $embed_enabled = NULL;
 
   /** An indicator that enables search inside functionality. */
-  public $search_inside_enabled = FALSE;
+  public $search_inside_enabled = NULL;
 
   /** An indicator that enables autoplay functionality. */
-  public $autoplay_enabled = FALSE;
+  public $autoplay_enabled = NULL;
 
   /** An indicator that enables RSS functionality. */
-  public $rss_enabled = TRUE;
+  public $rss_enabled = NULL;
 
   /** An indicator that enables iTunes functionality. */
-  public $itunes_rss_enabled = TRUE;
+  public $itunes_rss_enabled = NULL;
 
   /** The date the channel was last set to 'Published'. */
   public $publish_date = NULL;
@@ -149,7 +149,8 @@ class LimelightChannel extends LimelightResource {
     return !$this->set(array(
       'state' => ($state ? 'Published' : 'NotPublished'),
       'search_inside_enabled' => TRUE,
-      'rss_enabled' => TRUE
+      'rss_enabled' => TRUE,
+      'itunes_rss_enabled' => TRUE
     ))->errors();
   }
 
