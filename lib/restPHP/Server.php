@@ -51,6 +51,16 @@ class restPHP_Server {
   }
 
   /**
+   * Gets a configuration variable.
+   */
+  public function getConfig($param) {
+    if (isset($this->config[$param])) {
+      return $this->config[$param];
+    }
+    return NULL;
+  }
+
+  /**
    * Sets a configuration variable.
    */
   public function setConfig($param, $value) {
@@ -194,10 +204,9 @@ class restPHP_Server {
   }
 
   /**
-   * Performs a server call.
+   * Sets the request to be made.
    */
-  public function call($endpoint, $method = HTTP_Request2::METHOD_GET, $params = array(), $query = array(), $has_format = TRUE) {
-
+  public function setRequest($endpoint, $method = HTTP_Request2::METHOD_GET, $params = array(), $query = array(), $has_format = TRUE) {
     // Normalize the params.
     $params = (array)$params;
     $query = (array)$query;
@@ -206,11 +215,20 @@ class restPHP_Server {
     $format = $has_format ? ('.' . $this->config['format']) : '';
     $url = $this->config['base_url'] . '/' . $endpoint . $format;
 
-    // Create a new request.
-    $this->newRequest($url, $method)
-      ->addParams($params)            /** Add Parameters. */
-      ->addQuery($query)              /** Add Query */
-      ->authenticate()                /** Authenticate the request */
+    // Return the complete request object.
+    return $this->newRequest($url, $method) /** Create the request. */
+      ->addParams($params)                  /** Add Parameters. */
+      ->addQuery($query)                    /** Add Query */
+      ->authenticate();                     /** Authenticate the request */
+  }
+
+  /**
+   * Performs a server call.
+   */
+  public function call($endpoint, $method = HTTP_Request2::METHOD_GET, $params = array(), $query = array(), $has_format = TRUE) {
+
+    // Get a complete request object.
+    $this->setRequest($endpoint, $method, $params, $query, $has_format)
       ->send()                        /** Send the request. */
       ->decode()                      /** Decode the response. */
       ->validate()                    /** Validate the response. */

@@ -212,6 +212,44 @@ class LimelightMedia extends LimelightResource {
   }
 
   /**
+   * Returns an Upload Widget for your page.
+   */
+  public function getUploadWidget($redirect = '', $width = 475, $height = 325) {
+
+    // Get the POST request.
+    $this->server->setConfig('authenticate', TRUE);
+    $request = $this->server->setRequest($this->endpoint('set'),HTTP_Request2::METHOD_POST);
+    $this->server->setConfig('authenticate', FALSE);
+
+    // Get the URL for this request.
+    $url = urlencode($request->request()->getUrl()->getUrl());
+
+    // Get the flashvars for this request.
+    $flashVars = "presigned_url={$url}";
+    if ($redirect) {
+      $redirect = urlencode($redirect);
+      $flashVars .= "&redirect_to={$redirect}";
+    }
+
+    $widget = "<object id='obj1'
+      width='{$width}' height='{$height}'
+      classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000'
+      codebase='http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=8,5,0,0' height='400' width='500'>
+      <param name='src' value='http://assets.delvenetworks.com/upload-widget/current.swf'/>
+      <param name='AllowScriptAccess' value='always'/>
+      <param name='flashvars' value='{$flashVars}'/>
+      <embed name='obj2'
+        pluginspage='http://www.macromedia.com/go/getflashplayer'
+        AllowScriptAccess='always'
+        src='http://assets.delvenetworks.com/upload-widget/current.swf'
+        height='{$height}' width='{$width}' flashvars='{$flashVars}'/>
+      </object><br/>";
+
+    // Return the upload widget.
+    return $widget;
+  }
+
+  /**
    * Returns the object to send to the server when creating/updating.
    * @return type
    */

@@ -99,7 +99,8 @@ class LimelightServer extends restPHP_Server {
         $this->request->getUrl()->setQueryVariable('access_key', $params['access_key']);
       }
       if (!isset($params['expires'])) {
-        $params['expires'] = time() + 300;
+        $timeout = $this->config['request_timeout'] ? $this->config['request_timeout'] : 300;
+        $params['expires'] = time() + $timeout;
         $this->request->getUrl()->setQueryVariable('expires', $params['expires']);
       }
 

@@ -37,6 +37,7 @@ class LimelightConfig {
     'access_key' => '',
     'secret' => '',
     'cache_timeout' => 4800,
+    'request_timeout' => 300,
     'request_class' => 'LimelightCachedRequest',
     'authenticate' => FALSE
   );
@@ -49,14 +50,22 @@ class LimelightConfig {
    */
   public static function getConfig($defaults = array()) {
     global $limelight_config;
+
+    // Get the static configuration.
+    $config = self::$config;
+
+    // Set the request timeout to the session cache expiration.
+    $config['request_timeout'] = (session_cache_expire() * 60);
+
+    // Return the correct configuration.
     if ($limelight_config) {
-      return array_merge(self::$config, array_filter($limelight_config));
+      return array_merge($config, array_filter($limelight_config));
     }
     else if ($defaults) {
-      return array_merge(self::$config, array_filter($defaults));
+      return array_merge($config, array_filter($defaults));
     }
     else {
-      return self::$config;
+      return $config;
     }
   }
 }
