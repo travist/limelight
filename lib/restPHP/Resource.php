@@ -220,7 +220,8 @@ class restPHP_Resource {
       }
 
       // Return the diff.
-      return $this->diff;
+      $obj = $this->getObject();
+      return array_intersect_key($this->diff, $obj);
     }
     else {
 
