@@ -212,20 +212,25 @@ class LimelightMedia extends LimelightResource {
   }
 
   /**
-   * Returns an Upload Widget for your page.
+   * Returns an upload URL for media.
    */
-  public function getUploadWidget($redirect = '', $width = 475, $height = 325) {
-
+  public function getUploadURL($redirect = '') {
     // Get the POST request.
     $this->server->setConfig('authenticate', TRUE);
     $request = $this->server->setRequest($this->endpoint('set'),HTTP_Request2::METHOD_POST);
     $this->server->setConfig('authenticate', FALSE);
 
     // Get the URL for this request.
-    $url = urlencode($request->request()->getUrl()->getUrl());
+    return $request->request()->getUrl()->getUrl();
+  }
+
+  /**
+   * Returns an Upload Widget for your page.
+   */
+  public function getUploadWidget($redirect = '', $width = 475, $height = 325) {
 
     // Get the flashvars for this request.
-    $flashVars = "presigned_url={$url}";
+    $flashVars = "presigned_url=" . urlencode($this->getUploadURL());
     if ($redirect) {
       $redirect = urlencode($redirect);
       $flashVars .= "&redirect_to={$redirect}";
