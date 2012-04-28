@@ -10,6 +10,12 @@ define('LIMELIGHT_QUALITY_MEDIUM', 'medium');
 define('LIMELIGHT_QUALITY_HIGH', 'high');
 define('LIMELIGHT_QUALITY_HD', 'hd');
 
+// Define the mobile media types.
+define('LIMELIGHT_MOBILE_TYPE_H264', 'MobileH264');
+define('LIMELIGHT_MOBILE_TYPE_3GP', 'Mobile3gp');
+define('LIMELIGHT_MOBILE_TYPE_LIVE', 'HttpLiveStreaming');
+define('LIMELIGHT_MOBILE_TYPE_ALL', 'All');
+
 class LimelightMedia extends LimelightResource {
 
   /** The media file. */
@@ -180,6 +186,35 @@ class LimelightMedia extends LimelightResource {
       $endpoint = $this->type . '/' . $this->id . '/download_url';
       $params = array('quality' => $quality);
       $this->server->call($endpoint, HTTP_Request2::METHOD_POST, $params, NULL, TRUE);
+      $url = $this->getResponse();
+
+      // Reset the server configurations.
+      $this->server->setConfig('authenticate', FALSE);
+      $this->server->setConfig('request', array(
+        'force_cache' => FALSE,
+        'cache_seed' => '',
+        'cache_timeout' => 3600,
+      ));
+    }
+    return $url;
+  }
+
+  /**
+   * Returns the mobile URL for a provided media.
+   */
+  public function mobileURL($type = LIMELIGHT_MOBILE_TYPE_H264) {
+    $url = '';
+    if ($this->type && $this->id) {
+      $this->server->setConfig('authenticate', TRUE);
+      $this->server->setConfig('request', array(
+        'force_cache' => TRUE,
+        'cache_seed' => $type,
+        'cache_timeout' => 900, /* 15 minute invalidation */
+      ));
+
+      // Get the endpoint, and make the request.
+      $endpoint = $this->type . '/' . $this->id . '/mobile_url/' . $type;
+      $this->server->call($endpoint, HTTP_Request2::METHOD_GET, array(), NULL, TRUE);
       $url = $this->getResponse();
 
       // Reset the server configurations.
