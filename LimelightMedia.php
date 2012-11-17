@@ -247,6 +247,21 @@ class LimelightMedia extends LimelightResource {
   }
 
   /**
+   * Get the encodings for a specific media.
+   */
+  public function getEncodings($primary_use = 'all') {
+    $this->server->setConfig('authenticate', TRUE);
+    $query = $this->getQuery($query, array(
+      'primary_use' => $primary_use
+    ));
+    $endpoint = $this->type . '/' . $this->id . '/encodings';
+    $this->server->call($endpoint, HTTP_Request2::METHOD_GET, array(), $query, TRUE);
+    $encodings = $this->getResponse();
+    $this->server->setConfig('authenticate', FALSE);
+    return $encodings->encodings;
+  }
+
+  /**
    * Returns an upload URL for media.
    */
   public function getUploadURL($redirect = '') {
