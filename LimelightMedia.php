@@ -251,14 +251,14 @@ class LimelightMedia extends LimelightResource {
    */
   public function getEncodings($primary_use = 'all') {
     $this->server->setConfig('authenticate', TRUE);
-    $query = $this->getQuery($query, array(
+    $query = $this->getQuery(array(), array(
       'primary_use' => $primary_use
     ));
     $endpoint = $this->type . '/' . $this->id . '/encodings';
     $this->server->call($endpoint, HTTP_Request2::METHOD_GET, array(), $query, TRUE);
     $encodings = $this->getResponse();
     $this->server->setConfig('authenticate', FALSE);
-    return $encodings->encodings;
+    return empty($encodings) ? array() : $encodings->encodings;
   }
 
   /**
